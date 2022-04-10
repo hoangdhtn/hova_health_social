@@ -16,15 +16,25 @@ enum Status {
   Registered,
   Authenticating,
   Registering,
-  LoggedOut
+  LoggedOut,
+  NotSentMail,
+  SentMailing,
+  SentMail,
+  NotResetPassword,
+  ResetPasswording,
+  ResetPassworded,
 }
 
 class AuthProvider extends ChangeNotifier {
   Status _loggedInStatus = Status.NotLoggedIn;
   Status _registeredInStatus = Status.NotRegistered;
+  Status _sentmailInStatus = Status.NotSentMail;
+  Status _resetpassInStatus = Status.NotResetPassword;
 
   Status get loggedInStatus => _loggedInStatus;
   Status get registeredInStatus => _registeredInStatus;
+  Status get sentmailInStatus => _sentmailInStatus;
+  Status get resetpassInStatus => _resetpassInStatus;
 
   Future<Map<String, dynamic>> login(String username, String password) async {
     var result;
@@ -112,7 +122,10 @@ class AuthProvider extends ChangeNotifier {
       );
 
       if (response.statusCode == 200) {
-        result = {'status': true, 'message': 'Successful'};
+        result = {
+          'status': true,
+          'message': 'Đăng kí thành công, mời bạn đăng nhập'
+        };
         _registeredInStatus = Status.Registered;
         notifyListeners();
       } else {
@@ -129,6 +142,110 @@ class AuthProvider extends ChangeNotifier {
       notifyListeners();
     }
     print("AAAAA" + registerData.toString());
+    return result;
+  }
+
+  Future<Map<String, dynamic>> sentMail(String email) async {
+    var result;
+
+    final Map<String, dynamic> sentmailData = {
+      'email': email,
+    };
+
+    _sentmailInStatus = Status.SentMailing;
+    notifyListeners();
+
+    try {
+      var response = Response();
+      response = await Dio().post(
+        API_URL.sentmail,
+        data: sentmailData,
+        options: Options(
+          headers: {
+            HttpHeaders.contentTypeHeader: "application/json",
+          },
+          followRedirects: false,
+          validateStatus: (status) {
+            return status <= 500;
+          },
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        result = {
+          "status": true,
+          "message": "Gửi mail thành công, vui lòng kiểm tra email"
+        };
+
+        _sentmailInStatus = Status.SentMail;
+        notifyListeners();
+      } else {
+        result = {
+          "status": false,
+          "message": "Gửi mail thất bại, vui lòng kiểm tra email"
+        };
+
+        _sentmailInStatus = Status.NotSentMail;
+        notifyListeners();
+      }
+    } on DioError catch (e) {
+      print(e.message);
+      _sentmailInStatus = Status.NotSentMail;
+      notifyListeners();
+    }
+
+    return result;
+  }
+
+  Future<Map<String, dynamic>> ressetPass(
+      String email, String keyMail, String pass) async {
+    var result;
+
+    final Map<String, dynamic> resetPassData = {
+      "key": keyMail,
+      "email": email,
+      "passwordNew": pass
+    };
+
+    _resetpassInStatus = Status.ResetPasswording;
+    notifyListeners();
+
+    try {
+      var response = Response();
+      response = await Dio().post(
+        API_URL.resetpassword,
+        data: resetPassData,
+        options: Options(
+          headers: {
+            HttpHeaders.contentTypeHeader: "application/json",
+          },
+          followRedirects: false,
+          validateStatus: (status) {
+            return status <= 500;
+          },
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        result = {
+          "status": true,
+          "message": "Đổi mật khẩu thành công, mời đăng nhập"
+        };
+
+        _resetpassInStatus = Status.ResetPassworded;
+        notifyListeners();
+      } else {
+        result = {"status": false, "message": "Đổi mật khẩu thất bại"};
+
+        _resetpassInStatus = Status.NotResetPassword;
+        notifyListeners();
+      }
+    } on DioError catch (e) {
+      print(e.message);
+      _resetpassInStatus = Status.NotResetPassword;
+      notifyListeners();
+    }
+
     return result;
   }
 }
