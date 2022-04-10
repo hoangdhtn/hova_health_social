@@ -1,5 +1,10 @@
+import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../model/user_model.dart';
+import '../providers/auth.dart';
+import '../providers/user_provider.dart';
 import '../widgets/background.dart';
 
 class LoginPage extends StatefulWidget {
@@ -10,10 +15,81 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  final _usernameController = TextEditingController();
+  final _passController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
+    AuthProvider auth = Provider.of<AuthProvider>(context);
+
+    var loading = Padding(
+      padding: EdgeInsets.all(20),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: const <Widget>[
+          CircularProgressIndicator(),
+          SizedBox(
+            width: 20,
+          ),
+          Text(" Đang đăng nhập ... Vui lòng đợi")
+        ],
+      ),
+    );
+
+    void doLogin(String username, String pass) {
+      final Future<Map<String, dynamic>> successfulMessage =
+          auth.login(username, pass);
+
+      successfulMessage.then((response) {
+        if (response['status']) {
+          User user = response['user'];
+          Provider.of<UserProvider>(context, listen: false).setUser(user);
+          Navigator.pushNamed(context, "/BottomNavigation");
+        } else {
+          Flushbar(
+            title: "Đăng nhập thất bại",
+            message: response['message'].toString(),
+            duration: Duration(seconds: 3),
+          ).show(context);
+        }
+      });
+    }
+
     Size size = MediaQuery.of(context).size;
 
+    var loginBtn = Container(
+      alignment: Alignment.centerRight,
+      margin: const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
+      child: ElevatedButton(
+        onPressed: () {
+          // Navigator.pushNamed(context, "/BottomNavigation");
+          doLogin(_usernameController.text, _passController.text);
+        },
+        style: ElevatedButton.styleFrom(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(80.0),
+          ),
+          padding: const EdgeInsets.all(0),
+        ),
+        child: Container(
+          alignment: Alignment.center,
+          height: 50.0,
+          width: size.width * 0.5,
+          decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(80.0),
+              gradient: const LinearGradient(colors: [
+                Color.fromARGB(255, 255, 136, 34),
+                Color.fromARGB(255, 255, 177, 41)
+              ])),
+          padding: const EdgeInsets.all(0),
+          child: const Text(
+            "ĐĂNG NHẬP",
+            textAlign: TextAlign.center,
+            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+          ),
+        ),
+      ),
+    );
     return Scaffold(
       body: Background(
         child: Column(
@@ -36,6 +112,7 @@ class _LoginPageState extends State<LoginPage> {
               alignment: Alignment.center,
               margin: EdgeInsets.symmetric(horizontal: 40),
               child: TextField(
+                controller: _usernameController,
                 decoration: InputDecoration(labelText: "TÀI KHOẢN"),
               ),
             ),
@@ -44,6 +121,7 @@ class _LoginPageState extends State<LoginPage> {
               alignment: Alignment.center,
               margin: const EdgeInsets.symmetric(horizontal: 40),
               child: TextField(
+                controller: _passController,
                 decoration: InputDecoration(labelText: "MẬT KHẨU"),
                 obscureText: true,
               ),
@@ -62,38 +140,7 @@ class _LoginPageState extends State<LoginPage> {
               ),
             ),
             SizedBox(height: size.height * 0.05),
-            Container(
-              alignment: Alignment.centerRight,
-              margin: const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
-              child: ElevatedButton(
-                onPressed: () =>
-                    Navigator.pushNamed(context, "/BottomNavigation"),
-                style: ElevatedButton.styleFrom(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(80.0),
-                  ),
-                  padding: const EdgeInsets.all(0),
-                ),
-                child: Container(
-                  alignment: Alignment.center,
-                  height: 50.0,
-                  width: size.width * 0.5,
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(80.0),
-                      gradient: const LinearGradient(colors: [
-                        Color.fromARGB(255, 255, 136, 34),
-                        Color.fromARGB(255, 255, 177, 41)
-                      ])),
-                  padding: const EdgeInsets.all(0),
-                  child: const Text(
-                    "ĐĂNG NHẬP",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold, color: Colors.white),
-                  ),
-                ),
-              ),
-            ),
+            auth.loggedInStatus == Status.Authenticating ? loading : loginBtn,
             Container(
               alignment: Alignment.centerRight,
               margin: const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
