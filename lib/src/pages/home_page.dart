@@ -1,7 +1,10 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:health_app/src/model/news_model.dart';
+import 'package:health_app/src/providers/news_provider.dart';
 import 'package:health_app/src/theme/extention.dart';
+import 'package:provider/provider.dart';
 
 import '../model/dactor_model.dart';
 import '../model/data.dart';
@@ -18,6 +21,8 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   List<DoctorModel> doctorDataList;
+  List<News> newsDataList;
+
   @override
   void initState() {
     doctorDataList = doctorMapList.map((x) => DoctorModel.fromJson(x)).toList();
@@ -197,35 +202,35 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _doctorsList() {
-    return SliverList(
-      delegate: SliverChildListDelegate(
-        [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              Text("Top Doctors", style: TextStyles.title.bold),
-              IconButton(
-                  icon: Icon(
-                    Icons.sort,
-                    color: Theme.of(context).primaryColor,
-                  ),
-                  onPressed: () {})
-              // .p(12).ripple(() {}, borderRadius: BorderRadius.all(Radius.circular(20))),
-            ],
-          ).hP16,
-          getdoctorWidgetList()
-        ],
-      ),
-    );
-  }
+  // Widget _doctorsList() {
+  //   return SliverList(
+  //     delegate: SliverChildListDelegate(
+  //       [
+  //         Row(
+  //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //           children: <Widget>[
+  //             Text("Top Doctors", style: TextStyles.title.bold),
+  //             IconButton(
+  //                 icon: Icon(
+  //                   Icons.sort,
+  //                   color: Theme.of(context).primaryColor,
+  //                 ),
+  //                 onPressed: () {})
+  //             // .p(12).ripple(() {}, borderRadius: BorderRadius.all(Radius.circular(20))),
+  //           ],
+  //         ).hP16,
+  //         getdoctorWidgetList()
+  //       ],
+  //     ),
+  //   );
+  // }
 
-  Widget getdoctorWidgetList() {
-    return Column(
-        children: doctorDataList.map((x) {
-      return _doctorTile(x);
-    }).toList());
-  }
+  // Widget getdoctorWidgetList() {
+  //   return Column(
+  //       children: doctorDataList.map((x) {
+  //     return _doctorTile(x);
+  //   }).toList());
+  // }
 
   Widget _doctorTile(DoctorModel model) {
     return Container(
@@ -267,9 +272,9 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
           ),
-          title: Text(model.name, style: TextStyles.title.bold),
+          title: Text(model.type, style: TextStyles.title.bold),
           subtitle: Text(
-            model.type,
+            model.description,
             style: TextStyles.bodySm.subTitleColor.bold,
           ),
           trailing: Icon(
@@ -305,6 +310,11 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    NewsProvider news = Provider.of<NewsProvider>(context, listen: false);
+    print(Provider.of<NewsProvider>(context, listen: false)
+        .getNews(0, 5)
+        .toString());
+
     return Scaffold(
       appBar: _appBar(),
       backgroundColor: Theme.of(context).backgroundColor,
@@ -319,7 +329,29 @@ class _HomePageState extends State<HomePage> {
               ],
             ),
           ),
-          _doctorsList()
+          SliverList(
+            delegate: SliverChildListDelegate(
+              [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    Text("Top Doctors", style: TextStyles.title.bold),
+                    IconButton(
+                        icon: Icon(
+                          Icons.sort,
+                          color: Theme.of(context).primaryColor,
+                        ),
+                        onPressed: () {})
+                    // .p(12).ripple(() {}, borderRadius: BorderRadius.all(Radius.circular(20))),
+                  ],
+                ).hP16,
+                Column(
+                    children: doctorDataList.map((x) {
+                  return _doctorTile(x);
+                }).toList()),
+              ],
+            ),
+          ),
         ],
       ),
     );

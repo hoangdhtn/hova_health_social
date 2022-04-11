@@ -21,7 +21,6 @@ class UserPreferences {
     prefs.setString("token", token);
 
     print("object prefere");
-    print("token pref " + user.full_name);
 
     return prefs.commit();
   }
@@ -81,6 +80,7 @@ class UserPreferences {
   Future<String> getToken() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     String token = prefs.getString("token");
+    print("token " + token.toString());
     return token;
   }
 }
