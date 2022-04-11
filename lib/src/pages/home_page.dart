@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:health_app/src/config/api_url.dart';
 import 'package:health_app/src/model/news_model.dart';
 import 'package:health_app/src/providers/news_provider.dart';
 import 'package:health_app/src/theme/extention.dart';
@@ -20,15 +21,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  List<DoctorModel> doctorDataList;
-  List<News> newsDataList;
-
-  @override
-  void initState() {
-    doctorDataList = doctorMapList.map((x) => DoctorModel.fromJson(x)).toList();
-    super.initState();
-  }
-
   Widget _appBar() {
     return AppBar(
       elevation: 0,
@@ -202,93 +194,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // Widget _doctorsList() {
-  //   return SliverList(
-  //     delegate: SliverChildListDelegate(
-  //       [
-  //         Row(
-  //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //           children: <Widget>[
-  //             Text("Top Doctors", style: TextStyles.title.bold),
-  //             IconButton(
-  //                 icon: Icon(
-  //                   Icons.sort,
-  //                   color: Theme.of(context).primaryColor,
-  //                 ),
-  //                 onPressed: () {})
-  //             // .p(12).ripple(() {}, borderRadius: BorderRadius.all(Radius.circular(20))),
-  //           ],
-  //         ).hP16,
-  //         getdoctorWidgetList()
-  //       ],
-  //     ),
-  //   );
-  // }
-
-  // Widget getdoctorWidgetList() {
-  //   return Column(
-  //       children: doctorDataList.map((x) {
-  //     return _doctorTile(x);
-  //   }).toList());
-  // }
-
-  Widget _doctorTile(DoctorModel model) {
-    return Container(
-      margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.all(Radius.circular(20)),
-        boxShadow: <BoxShadow>[
-          BoxShadow(
-            offset: Offset(4, 4),
-            blurRadius: 10,
-            color: LightColor.grey.withOpacity(.2),
-          ),
-          BoxShadow(
-            offset: Offset(-3, 0),
-            blurRadius: 15,
-            color: LightColor.grey.withOpacity(.1),
-          )
-        ],
-      ),
-      child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 18, vertical: 8),
-        child: ListTile(
-          contentPadding: EdgeInsets.all(0),
-          leading: ClipRRect(
-            borderRadius: BorderRadius.all(Radius.circular(13)),
-            child: Container(
-              height: 55,
-              width: 55,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(15),
-                color: randomColor(),
-              ),
-              child: Image.asset(
-                model.image,
-                height: 50,
-                width: 50,
-                fit: BoxFit.contain,
-              ),
-            ),
-          ),
-          title: Text(model.type, style: TextStyles.title.bold),
-          subtitle: Text(
-            model.description,
-            style: TextStyles.bodySm.subTitleColor.bold,
-          ),
-          trailing: Icon(
-            Icons.keyboard_arrow_right,
-            size: 30,
-            color: Theme.of(context).primaryColor,
-          ),
-        ),
-      ).ripple(() {
-        Navigator.pushNamed(context, "/DetailPage", arguments: model);
-      }, borderRadius: BorderRadius.all(Radius.circular(20))),
-    );
-  }
-
   Color randomColor() {
     var random = Random();
     final colorList = [
@@ -308,51 +213,120 @@ class _HomePageState extends State<HomePage> {
     return color;
   }
 
+  Future<List<News>> futureData;
+  int position = 0;
+  int pageSize = 5;
+
   @override
   Widget build(BuildContext context) {
-    NewsProvider news = Provider.of<NewsProvider>(context, listen: false);
-    print(Provider.of<NewsProvider>(context, listen: false)
-        .getNews(0, 5)
-        .toString());
+    final listNews = Provider.of<NewsProvider>(context);
+    futureData = listNews.getNews(position, pageSize);
 
     return Scaffold(
       appBar: _appBar(),
       backgroundColor: Theme.of(context).backgroundColor,
-      body: CustomScrollView(
-        slivers: <Widget>[
-          SliverList(
-            delegate: SliverChildListDelegate(
-              [
-                _header(),
-                _searchField(),
-                _category(),
-              ],
-            ),
-          ),
-          SliverList(
-            delegate: SliverChildListDelegate(
-              [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    Text("Top Doctors", style: TextStyles.title.bold),
-                    IconButton(
-                        icon: Icon(
-                          Icons.sort,
-                          color: Theme.of(context).primaryColor,
-                        ),
-                        onPressed: () {})
-                    // .p(12).ripple(() {}, borderRadius: BorderRadius.all(Radius.circular(20))),
-                  ],
-                ).hP16,
-                Column(
-                    children: doctorDataList.map((x) {
-                  return _doctorTile(x);
-                }).toList()),
-              ],
-            ),
-          ),
-        ],
+      body: FutureBuilder<List<News>>(
+        future: futureData,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            List<News> data = snapshot.data;
+            return SingleChildScrollView(
+              child: Column(
+                children: [
+                  _header(),
+                  _searchField(),
+                  _category(),
+                  ListView.builder(
+                      primary: false,
+                      shrinkWrap: true,
+                      itemCount: data.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        return Container(
+                          height: 100,
+                          color: Colors.white,
+                          child: Container(
+                            margin: const EdgeInsets.symmetric(
+                                vertical: 8, horizontal: 16),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(20)),
+                              boxShadow: <BoxShadow>[
+                                BoxShadow(
+                                  offset: Offset(4, 4),
+                                  blurRadius: 10,
+                                  color: LightColor.grey.withOpacity(.2),
+                                ),
+                                BoxShadow(
+                                  offset: Offset(-3, 0),
+                                  blurRadius: 15,
+                                  color: LightColor.grey.withOpacity(.1),
+                                )
+                              ],
+                            ),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 18, vertical: 8),
+                              child: ListTile(
+                                contentPadding: EdgeInsets.all(0),
+                                leading: ClipRRect(
+                                  borderRadius: const BorderRadius.all(
+                                      Radius.circular(13)),
+                                  child: Container(
+                                    height: 55,
+                                    width: 55,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(15),
+                                      color: randomColor(),
+                                    ),
+                                    child: data[index].news_Imgs != null
+                                        ? Image.network(
+                                            API_URL.getImage +
+                                                data[index]
+                                                    .news_Imgs[0]
+                                                    .toString(),
+                                            height: 50,
+                                            width: 50,
+                                            fit: BoxFit.contain,
+                                          )
+                                        : Image.asset(
+                                            'assets/user.png',
+                                            height: 50,
+                                            width: 50,
+                                            fit: BoxFit.contain,
+                                          ),
+                                  ),
+                                ),
+                                title: Text(data[index].title,
+                                    style: TextStyles.title.bold),
+                                subtitle: Text(
+                                  data[index].keyword,
+                                  style: TextStyles.bodySm.subTitleColor.bold,
+                                ),
+                                trailing: Icon(
+                                  Icons.keyboard_arrow_right,
+                                  size: 30,
+                                  color: Theme.of(context).primaryColor,
+                                ),
+                              ),
+                            ).ripple(() {
+                              Navigator.pushNamed(context, "/DetailPage",
+                                  arguments: data[index]);
+                            },
+                                borderRadius: const BorderRadius.all(
+                                    Radius.circular(20))),
+                          ),
+                        );
+                      }),
+                ],
+              ),
+            );
+          } else if (snapshot.hasError) {
+            return Text("${snapshot.error}");
+          }
+          // By default show a loading spinner.
+          return Center(child: CircularProgressIndicator());
+        },
       ),
     );
   }

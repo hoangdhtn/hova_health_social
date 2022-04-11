@@ -16,14 +16,13 @@ enum Status {
 }
 
 class NewsProvider extends ChangeNotifier {
-  Status _getnewsInStatus = Status.NotGetNews;
+  // Status _getnewsInStatus = Status.NotGetNews;
 
-  Status get getnewsInStatus => _getnewsInStatus;
+  // Status get getnewsInStatus => _getnewsInStatus;
 
-  Future<Map<String, dynamic>> getNews(int position, int pageSize) async {
-    var result;
+  Future<List<News>> getNews(int position, int pageSize) async {
     Future<String> token = UserPreferences().getToken();
-
+    List<News> listNews = [];
     // _getnewsInStatus = Status.GetNewsing;
     // notifyListeners();
 
@@ -43,31 +42,17 @@ class NewsProvider extends ChangeNotifier {
         ),
       );
 
-      print("URL : " +
-          API_URL.news +
-          position.toString() +
-          "/" +
-          pageSize.toString());
-      // print("====> DATA NEWS : " + response.data.toString());
-
       if (response.statusCode == 200) {
-        result = {
-          "status": true,
-          "news": response.data,
-        };
-
-        print("====> DATA NEWS : " + result.toString());
-
+        final data = response.data;
+        listNews.addAll(
+          data.map<News>(
+            (json) => News.fromJson(json),
+          ),
+        );
         // _getnewsInStatus = Status.GetNewsed;
         // notifyListeners();
       } else {
-        result = {
-          "status": false,
-          "news": [],
-        };
-
-        print("====> DATA NEWS : " + result.toString());
-
+        listNews = [];
         // _getnewsInStatus = Status.NotGetNews;
         // notifyListeners();
       }
@@ -76,6 +61,8 @@ class NewsProvider extends ChangeNotifier {
       // _getnewsInStatus = Status.NotGetNews;
       // notifyListeners();
     }
-    return result;
+    //print(listNews);
+    print(listNews.length);
+    return listNews;
   }
 }

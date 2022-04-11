@@ -1,3 +1,5 @@
+import 'package:flutter/cupertino.dart';
+
 class News {
   int id;
   String title;
@@ -26,9 +28,11 @@ class News {
     enabled = json['enabled'];
     if (json['categories'] != null) {
       List<Categories> categories = [];
-      json['images'].forEach((v) {
-        categories.add(new Categories.fromJson(v));
-      });
+      json['images'] != null
+          ? json['images'].forEach((v) {
+              categories.add(new Categories.fromJson(v));
+            })
+          : '';
     }
 
     if (json['news_Imgs'] != null) {

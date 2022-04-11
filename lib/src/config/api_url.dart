@@ -9,4 +9,5 @@ class API_URL {
   static const String sentmail = baseURL + "/sentmail";
   static const String resetpassword = baseURL + "/resetpassword";
   static const String news = baseURL + "/news/";
+  static const String getImage = baseURL + "/getimage/";
 }
