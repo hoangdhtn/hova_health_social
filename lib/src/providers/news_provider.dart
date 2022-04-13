@@ -20,8 +20,9 @@ class NewsProvider extends ChangeNotifier {
 
   // Status get getnewsInStatus => _getnewsInStatus;
 
-  Future<List<News>> getNews(int position, int pageSize) async {
+  getNews(int position, int pageSize) async {
     Future<String> token = UserPreferences().getToken();
+    String tokenA = await token;
     List<News> listNews = [];
     // _getnewsInStatus = Status.GetNewsing;
     // notifyListeners();
@@ -33,7 +34,7 @@ class NewsProvider extends ChangeNotifier {
         options: Options(
           headers: {
             HttpHeaders.contentTypeHeader: "application/json",
-            HttpHeaders.authorizationHeader: token.toString(),
+            HttpHeaders.authorizationHeader: "${tokenA}",
           },
           followRedirects: false,
           validateStatus: (status) {
@@ -52,7 +53,7 @@ class NewsProvider extends ChangeNotifier {
         // _getnewsInStatus = Status.GetNewsed;
         // notifyListeners();
       } else {
-        listNews = [];
+        listNews = null;
         // _getnewsInStatus = Status.NotGetNews;
         // notifyListeners();
       }
@@ -61,7 +62,7 @@ class NewsProvider extends ChangeNotifier {
       // _getnewsInStatus = Status.NotGetNews;
       // notifyListeners();
     }
-    //print(listNews);
+    print(listNews);
     print(listNews.length);
     return listNews;
   }

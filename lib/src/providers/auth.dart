@@ -65,11 +65,11 @@ class AuthProvider extends ChangeNotifier {
 
       print("RES" + response.toString());
       if (response.statusCode == 200) {
-        String token = response.data['token'];
         // print("TOKEN " + token.toString());
         // print("User " + response.data['user'].toString());
 
         var userData = response.data['user'];
+        String token = response.data['token'];
         User authUser = User.fromJson(userData);
         UserPreferences().saveUser(authUser, token);
 

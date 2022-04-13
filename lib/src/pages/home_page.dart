@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:health_app/src/config/api_url.dart';
 import 'package:health_app/src/model/news_model.dart';
 import 'package:health_app/src/providers/news_provider.dart';
@@ -213,120 +214,172 @@ class _HomePageState extends State<HomePage> {
     return color;
   }
 
-  Future<List<News>> futureData;
+  List<News> futureData;
+  ScrollController controller;
   int position = 0;
   int pageSize = 5;
+  bool isLoadingTop = false;
+  bool isLoadingBot = false;
+
+  List<News> newsMore;
+
+  void initState() {
+    if (SchedulerBinding.instance.schedulerPhase ==
+        SchedulerPhase.persistentCallbacks) {
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        getNewsList();
+      });
+    }
+    super.initState();
+    controller = ScrollController()..addListener(_scrollListener);
+  }
+
+  @override
+  void dispose() {
+    controller.removeListener(_scrollListener);
+    super.dispose();
+  }
+
+  void getNewsList() async {
+    var fetchedNews = await Provider.of<NewsProvider>(context, listen: false)
+        .getNews(position, pageSize) as List<News>;
+    setState(() {
+      futureData = fetchedNews;
+    });
+  }
+
+  void _scrollListener() async {
+    print(controller.position.extentAfter);
+    if (controller.position.pixels == controller.position.maxScrollExtent) {
+      var fetchedNews = await Provider.of<NewsProvider>(context, listen: false)
+          .getNews(position + 5, pageSize + 5) as List<News>;
+      setState(() {});
+      if (fetchedNews != null &&
+          fetchedNews.isNotEmpty &&
+          fetchedNews.length > 0) {
+        setState(() {
+          futureData = futureData + fetchedNews;
+          position += 5;
+          pageSize += 5;
+        });
+      }
+
+      print("AAAAA => " + position.toString() + "  -  " + pageSize.toString());
+    }
+
+    if (controller.position.pixels == controller.position.minScrollExtent) {
+      setState(() {
+        position = 0;
+        pageSize = 5;
+      });
+
+      var fetchedNews = await Provider.of<NewsProvider>(context, listen: false)
+          .getNews(position, pageSize) as List<News>;
+      if (fetchedNews != null &&
+          fetchedNews.isNotEmpty &&
+          fetchedNews.length > 0) {
+        setState(() {
+          futureData = fetchedNews;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    final listNews = Provider.of<NewsProvider>(context);
-    futureData = listNews.getNews(position, pageSize);
-
     return Scaffold(
       appBar: _appBar(),
       backgroundColor: Theme.of(context).backgroundColor,
-      body: FutureBuilder<List<News>>(
-        future: futureData,
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            List<News> data = snapshot.data;
-            return SingleChildScrollView(
-              child: Column(
-                children: [
-                  _header(),
-                  _searchField(),
-                  _category(),
-                  ListView.builder(
-                      primary: false,
-                      shrinkWrap: true,
-                      itemCount: data.length,
-                      itemBuilder: (BuildContext context, int index) {
-                        return Container(
-                          height: 100,
-                          color: Colors.white,
-                          child: Container(
-                            margin: const EdgeInsets.symmetric(
-                                vertical: 8, horizontal: 16),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(20)),
-                              boxShadow: <BoxShadow>[
-                                BoxShadow(
-                                  offset: Offset(4, 4),
-                                  blurRadius: 10,
-                                  color: LightColor.grey.withOpacity(.2),
-                                ),
-                                BoxShadow(
-                                  offset: Offset(-3, 0),
-                                  blurRadius: 15,
-                                  color: LightColor.grey.withOpacity(.1),
-                                )
-                              ],
-                            ),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 18, vertical: 8),
-                              child: ListTile(
-                                contentPadding: EdgeInsets.all(0),
-                                leading: ClipRRect(
-                                  borderRadius: const BorderRadius.all(
-                                      Radius.circular(13)),
-                                  child: Container(
-                                    height: 55,
-                                    width: 55,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(15),
-                                      color: randomColor(),
-                                    ),
-                                    child: data[index].news_Imgs != null
-                                        ? Image.network(
-                                            API_URL.getImage +
-                                                data[index]
-                                                    .news_Imgs[0]
-                                                    .toString(),
-                                            height: 50,
-                                            width: 50,
-                                            fit: BoxFit.contain,
-                                          )
-                                        : Image.asset(
-                                            'assets/user.png',
-                                            height: 50,
-                                            width: 50,
-                                            fit: BoxFit.contain,
-                                          ),
-                                  ),
-                                ),
-                                title: Text(data[index].title,
-                                    style: TextStyles.title.bold),
-                                subtitle: Text(
-                                  data[index].keyword,
-                                  style: TextStyles.bodySm.subTitleColor.bold,
-                                ),
-                                trailing: Icon(
-                                  Icons.keyboard_arrow_right,
-                                  size: 30,
-                                  color: Theme.of(context).primaryColor,
-                                ),
-                              ),
-                            ).ripple(() {
-                              Navigator.pushNamed(context, "/DetailPage",
-                                  arguments: data[index]);
-                            },
-                                borderRadius: const BorderRadius.all(
-                                    Radius.circular(20))),
-                          ),
-                        );
-                      }),
-                ],
+      body: futureData == null || futureData.length < 0
+          ? Center(child: CircularProgressIndicator())
+          : ListView(
+              controller: controller,
+              physics: BouncingScrollPhysics(),
+              children: [
+                _header(),
+                _searchField(),
+                _category(),
+                ListView.builder(
+                    shrinkWrap: true,
+                    physics: ScrollPhysics(),
+                    itemCount: futureData.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      return _listNewsWidget(futureData, index, context);
+                    }),
+              ],
+            ),
+    );
+  }
+
+  List<Images> imgNews = [];
+  Container _listNewsWidget(List<News> data, int index, BuildContext context) {
+    imgNews = data[index].news_Imgs as List;
+    // if (imgNews != null && imgNews.length > 0) {
+    //   print(" Hinh anh 1 : " + imgNews[0].name.toString());
+    // }
+    return Container(
+      height: 100,
+      color: Colors.white,
+      child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.all(Radius.circular(20)),
+          boxShadow: <BoxShadow>[
+            BoxShadow(
+              offset: Offset(4, 4),
+              blurRadius: 10,
+              color: LightColor.grey.withOpacity(.2),
+            ),
+            BoxShadow(
+              offset: Offset(-3, 0),
+              blurRadius: 15,
+              color: LightColor.grey.withOpacity(.1),
+            )
+          ],
+        ),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
+          child: ListTile(
+            contentPadding: EdgeInsets.all(0),
+            leading: ClipRRect(
+              borderRadius: const BorderRadius.all(Radius.circular(13)),
+              child: Container(
+                height: 55,
+                width: 55,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(15),
+                  color: randomColor(),
+                ),
+                child: imgNews != null && imgNews.isNotEmpty
+                    ? Image.network(
+                        API_URL.getImage + imgNews[0].name.toString(),
+                        height: 50,
+                        width: 50,
+                        fit: BoxFit.contain,
+                      )
+                    : Image.asset(
+                        'assets/user.png',
+                        height: 50,
+                        width: 50,
+                        fit: BoxFit.contain,
+                      ),
               ),
-            );
-          } else if (snapshot.hasError) {
-            return Text("${snapshot.error}");
-          }
-          // By default show a loading spinner.
-          return Center(child: CircularProgressIndicator());
-        },
+            ),
+            title: Text(data[index].title, style: TextStyles.title.bold),
+            subtitle: Text(
+              data[index].keyword,
+              style: TextStyles.bodySm.subTitleColor.bold,
+            ),
+            trailing: Icon(
+              Icons.keyboard_arrow_right,
+              size: 30,
+              color: Theme.of(context).primaryColor,
+            ),
+          ),
+        ).ripple(() {
+          Navigator.pushNamed(context, "/DetailPage", arguments: data[index]);
+        }, borderRadius: const BorderRadius.all(Radius.circular(20))),
       ),
     );
   }

@@ -76,7 +76,8 @@ class _LoginPageState extends State<LoginPage> {
           if (response['status']) {
             User user = response['user'];
             Provider.of<UserProvider>(context, listen: false).setUser(user);
-            Navigator.pushNamed(context, "/BottomNavigation");
+            Navigator.pushNamedAndRemoveUntil(
+                context, "/BottomNavigation", (route) => false);
           } else {
             Flushbar(
               title: "Đăng nhập thất bại",
@@ -98,7 +99,8 @@ class _LoginPageState extends State<LoginPage> {
       child: ElevatedButton(
         onPressed: () {
           //Navigator.pushNamed(context, "/BottomNavigation");
-          doLogin(_usernameController.text, _passController.text);
+          //doLogin(_usernameController.text, _passController.text);
+          doLogin("adminhuyhoang", "adminhuyhoang");
         },
         style: ElevatedButton.styleFrom(
           shape: RoundedRectangleBorder(

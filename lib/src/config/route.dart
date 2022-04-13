@@ -38,6 +38,7 @@ class Routes {
             builder: (BuildContext context) => DetailPage(
                   model: settings.arguments,
                 ));
+        break;
     }
   }
 }

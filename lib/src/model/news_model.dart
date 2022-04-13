@@ -20,27 +20,26 @@ class News {
     this.news_Imgs,
   });
 
-  News.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
-    title = json['title'];
-    content = json['content'];
-    keyword = json['keyword'];
-    enabled = json['enabled'];
-    if (json['categories'] != null) {
-      List<Categories> categories = [];
-      json['images'] != null
-          ? json['images'].forEach((v) {
-              categories.add(new Categories.fromJson(v));
-            })
-          : '';
-    }
-
-    if (json['news_Imgs'] != null) {
-      List<Images> news_Imgs = [];
-      json['news_Imgs'].forEach((v) {
-        news_Imgs.add(new Images.fromJson(v));
-      });
-    }
+  factory News.fromJson(Map<String, dynamic> json) {
+    return News(
+      id: json['id'],
+      title: json['title'],
+      content: json['content'],
+      keyword: json['keyword'],
+      enabled: json['enabled'],
+      // ignore: prefer_null_aware_operators
+      categories: json['categories'] != null
+          ? json['categories']
+              .map<Categories>((json) => Categories.fromJson(json))
+              .toList()
+          : null,
+      // ignore: prefer_null_aware_operators
+      news_Imgs: json['news_Imgs'] != null
+          ? json['news_Imgs']
+              .map<Images>((json) => Images.fromJson(json))
+              .toList()
+          : null,
+    );
   }
 
   Map<String, dynamic> toJson() {

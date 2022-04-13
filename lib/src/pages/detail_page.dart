@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
+import 'package:health_app/src/model/category_model.dart';
+import 'package:health_app/src/model/news_model.dart';
 import 'package:health_app/src/theme/extention.dart';
 
 import '../model/dactor_model.dart';
@@ -10,41 +13,44 @@ import '../widgets/rating_start.dart';
 
 class DetailPage extends StatefulWidget {
   DetailPage({Key key, this.model}) : super(key: key);
-  final DoctorModel model;
+  final News model;
 
   @override
   _DetailPageState createState() => _DetailPageState();
 }
 
 class _DetailPageState extends State<DetailPage> {
-  DoctorModel model;
+  News model;
+  @override
+  Widget _appbar() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: <Widget>[
+        BackButton(color: Theme.of(context).primaryColor),
+        // IconButton(
+        //     icon: Icon(
+        //       model.isfavourite ? Icons.favorite : Icons.favorite_border,
+        //       color: model.isfavourite ? Colors.red : LightColor.grey,
+        //     ),
+        //     onPressed: () {
+        //       setState(() {
+        //         model.isfavourite = !model.isfavourite;
+        //       });
+        //     })
+      ],
+    );
+  }
+
   @override
   void initState() {
     model = widget.model;
     super.initState();
   }
 
-  Widget _appbar() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: <Widget>[
-        BackButton(color: Theme.of(context).primaryColor),
-        IconButton(
-            icon: Icon(
-              model.isfavourite ? Icons.favorite : Icons.favorite_border,
-              color: model.isfavourite ? Colors.red : LightColor.grey,
-            ),
-            onPressed: () {
-              setState(() {
-                model.isfavourite = !model.isfavourite;
-              });
-            })
-      ],
-    );
-  }
-
+  List<Categories> cateList = [];
   @override
   Widget build(BuildContext context) {
+    cateList = model.categories as List;
     TextStyle titleStyle = TextStyles.title.copyWith(fontSize: 25).bold;
     if (AppTheme.fullWidth(context) < 393) {
       titleStyle = TextStyles.title.copyWith(fontSize: 23).bold;
@@ -55,7 +61,7 @@ class _DetailPageState extends State<DetailPage> {
         bottom: false,
         child: Stack(
           children: <Widget>[
-            Image.asset(model.image),
+            Image.asset('assets/doctor.png'),
             DraggableScrollableSheet(
               maxChildSize: .8,
               initialChildSize: .6,
@@ -63,18 +69,18 @@ class _DetailPageState extends State<DetailPage> {
               builder: (context, scrollController) {
                 return Container(
                   height: AppTheme.fullHeight(context) * .5,
-                  padding: EdgeInsets.only(
+                  padding: const EdgeInsets.only(
                       left: 19,
                       right: 19,
                       top: 16), //symmetric(horizontal: 19, vertical: 16),
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     borderRadius: BorderRadius.only(
                         topLeft: Radius.circular(30),
                         topRight: Radius.circular(30)),
                     color: Colors.white,
                   ),
                   child: SingleChildScrollView(
-                    physics: BouncingScrollPhysics(),
+                    physics: const BouncingScrollPhysics(),
                     controller: scrollController,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -85,65 +91,69 @@ class _DetailPageState extends State<DetailPage> {
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: <Widget>[
                               Text(
-                                model.name,
+                                model.title,
                                 style: titleStyle,
                               ),
-                              SizedBox(
+                              const SizedBox(
                                 width: 10,
                               ),
                               Icon(Icons.check_circle,
                                   size: 18,
                                   color: Theme.of(context).primaryColor),
                               Spacer(),
-                              RatingStar(
-                                rating: model.rating,
+                              // RatingStar(
+                              //   rating: model.rating,
+                              // )
+                            ],
+                          ),
+                          subtitle: ListView(
+                            shrinkWrap: true,
+                            children: [
+                              Container(
+                                height: 20,
+                                child: ListView.builder(
+                                  physics: BouncingScrollPhysics(),
+                                  itemCount:
+                                      cateList.isNotEmpty && cateList != null
+                                          ? cateList.length
+                                          : null,
+                                  shrinkWrap: true,
+                                  scrollDirection: Axis.horizontal,
+                                  itemBuilder:
+                                      ((BuildContext context, int index) {
+                                    if (cateList.isNotEmpty &&
+                                        cateList != null) {
+                                      return Row(
+                                        children: [
+                                          Text(
+                                            cateList[index].name.toString(),
+                                            style: TextStyles
+                                                .bodySm.subTitleColor.bold,
+                                          ),
+                                          SizedBox(
+                                            width: 5,
+                                            child: Text(", "),
+                                          ),
+                                        ],
+                                      );
+                                    }
+                                  }),
+                                ),
                               )
                             ],
                           ),
-                          subtitle: Text(
-                            model.type,
-                            style: TextStyles.bodySm.subTitleColor.bold,
-                          ),
                         ),
-                        Divider(
+                        const Divider(
                           thickness: .3,
                           color: LightColor.grey,
                         ),
-                        Row(
-                          children: <Widget>[
-                            ProgressWidget(
-                                value: model.goodReviews,
-                                totalValue: 100,
-                                activeColor: LightColor.purpleExtraLight,
-                                backgroundColor:
-                                    LightColor.grey.withOpacity(.3),
-                                title: "Good Review",
-                                durationTime: 500),
-                            ProgressWidget(
-                                value: model.totalScore,
-                                totalValue: 100,
-                                activeColor: LightColor.purpleLight,
-                                backgroundColor:
-                                    LightColor.grey.withOpacity(.3),
-                                title: "Total Score",
-                                durationTime: 300),
-                            ProgressWidget(
-                                value: model.satisfaction,
-                                totalValue: 100,
-                                activeColor: LightColor.purple,
-                                backgroundColor:
-                                    LightColor.grey.withOpacity(.3),
-                                title: "Satisfaction",
-                                durationTime: 800),
-                          ],
-                        ),
-                        Divider(
+                        const Divider(
                           thickness: .3,
                           color: LightColor.grey,
                         ),
-                        Text("About", style: titleStyle).vP16,
+                        Text("Thông tin", style: titleStyle).vP16,
                         Text(
-                          model.description,
+                          model.content,
                           style: TextStyles.body.subTitleColor,
                         ),
                         Row(
@@ -155,7 +165,7 @@ class _DetailPageState extends State<DetailPage> {
                               decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(10),
                                   color: LightColor.grey.withAlpha(150)),
-                              child: Icon(
+                              child: const Icon(
                                 Icons.call,
                                 color: Colors.white,
                               ),
@@ -163,7 +173,7 @@ class _DetailPageState extends State<DetailPage> {
                               () {},
                               borderRadius: BorderRadius.circular(10),
                             ),
-                            SizedBox(
+                            const SizedBox(
                               width: 10,
                             ),
                             Container(
@@ -172,7 +182,7 @@ class _DetailPageState extends State<DetailPage> {
                               decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(10),
                                   color: LightColor.grey.withAlpha(150)),
-                              child: Icon(
+                              child: const Icon(
                                 Icons.chat_bubble,
                                 color: Colors.white,
                               ),
@@ -180,7 +190,7 @@ class _DetailPageState extends State<DetailPage> {
                               () {},
                               borderRadius: BorderRadius.circular(10),
                             ),
-                            SizedBox(
+                            const SizedBox(
                               width: 10,
                             ),
                             FlatButton(
