@@ -10,7 +10,7 @@ class User {
   bool is_active;
   String work_at;
   String location;
-  String date;
+  String data_of_birth;
   String token;
 
   User({
@@ -25,7 +25,7 @@ class User {
     this.is_active,
     this.work_at,
     this.location,
-    this.date,
+    this.data_of_birth,
     this.token,
   });
 
@@ -42,7 +42,7 @@ class User {
       is_active: json['is_active'],
       work_at: json['work_at'],
       location: json['location'],
-      date: json['date'],
+      data_of_birth: json['data_of_birth'],
     );
   }
 
@@ -59,6 +59,6 @@ class User {
     data['is_active'] = this.is_active;
     data['work_at'] = this.work_at;
     data['location'] = this.location;
-    data['date'] = this.date;
+    data['data_of_birth'] = this.data_of_birth;
   }
 }

@@ -17,7 +17,9 @@ class UserPreferences {
     prefs.setBool("is_active", user.is_active);
     prefs.setString("work_at", user.work_at);
     prefs.setString("location", user.location);
-    prefs.setString("date", user.date);
+    user.data_of_birth != null
+        ? prefs.setString("date", user.data_of_birth)
+        : prefs.setString("date", "1969-07-20");
     prefs.setString("token", token);
 
     print("object prefere");
@@ -54,7 +56,7 @@ class UserPreferences {
       is_active: is_active,
       work_at: work_at,
       location: location,
-      date: date,
+      data_of_birth: date,
       token: token,
     );
   }
@@ -73,7 +75,7 @@ class UserPreferences {
     prefs.remove("is_active");
     prefs.remove("work_at");
     prefs.remove("location");
-    prefs.remove("date");
+    prefs.remove("data_of_birth");
     prefs.remove("token");
   }
 

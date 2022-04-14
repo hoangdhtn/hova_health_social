@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter_html/flutter_html.dart';
 import 'package:health_app/src/model/category_model.dart';
 import 'package:health_app/src/model/news_model.dart';
 import 'package:health_app/src/theme/extention.dart';
@@ -152,6 +153,7 @@ class _DetailPageState extends State<DetailPage> {
                           color: LightColor.grey,
                         ),
                         Text("Thông tin", style: titleStyle).vP16,
+                        Html(data: model.content),
                         Text(
                           model.content,
                           style: TextStyles.body.subTitleColor,
