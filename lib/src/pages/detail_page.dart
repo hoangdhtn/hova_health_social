@@ -5,6 +5,7 @@ import 'package:health_app/src/model/category_model.dart';
 import 'package:health_app/src/model/news_model.dart';
 import 'package:health_app/src/theme/extention.dart';
 
+import '../config/api_url.dart';
 import '../model/dactor_model.dart';
 import '../theme/light_color.dart';
 import '../theme/text_styles.dart';
@@ -22,6 +23,16 @@ class DetailPage extends StatefulWidget {
 
 class _DetailPageState extends State<DetailPage> {
   News model;
+
+  List<Categories> cateList = [];
+  List<Images> imgList = [];
+
+  @override
+  void initState() {
+    model = widget.model;
+    super.initState();
+  }
+
   @override
   Widget _appbar() {
     return Row(
@@ -43,15 +54,9 @@ class _DetailPageState extends State<DetailPage> {
   }
 
   @override
-  void initState() {
-    model = widget.model;
-    super.initState();
-  }
-
-  List<Categories> cateList = [];
-  @override
   Widget build(BuildContext context) {
-    cateList = model.categories as List;
+    cateList = model.categories;
+    imgList = model.news_Imgs;
     TextStyle titleStyle = TextStyles.title.copyWith(fontSize: 25).bold;
     if (AppTheme.fullWidth(context) < 393) {
       titleStyle = TextStyles.title.copyWith(fontSize: 23).bold;
@@ -62,7 +67,44 @@ class _DetailPageState extends State<DetailPage> {
         bottom: false,
         child: Stack(
           children: <Widget>[
-            Image.asset('assets/doctor.png'),
+            Container(
+              height: MediaQuery.of(context).size.height / 2.5,
+              width: MediaQuery.of(context).size.width,
+              child: imgList.isNotEmpty && imgList != null
+                  ? ListView(
+                      shrinkWrap: true,
+                      physics: ScrollPhysics(),
+                      scrollDirection: Axis.horizontal,
+                      children: [
+                        ListView.builder(
+                          physics: BouncingScrollPhysics(),
+                          itemCount: imgList.isNotEmpty && imgList != null
+                              ? imgList.length
+                              : null,
+                          shrinkWrap: true,
+                          scrollDirection: Axis.horizontal,
+                          itemBuilder: (BuildContext context, int index) {
+                            if (imgList.isNotEmpty && imgList != null) {
+                              return Row(
+                                children: [
+                                  Image.network(
+                                    API_URL.getImage +
+                                        imgList[index].name.toString(),
+                                  ),
+                                  const SizedBox(
+                                    width: 10,
+                                  ),
+                                ],
+                              );
+                            } else {
+                              return Image.asset('assets/doctor.png');
+                            }
+                          },
+                        ),
+                      ],
+                    )
+                  : Image.asset('assets/doctor.png'),
+            ),
             DraggableScrollableSheet(
               maxChildSize: .8,
               initialChildSize: .6,
@@ -98,10 +140,10 @@ class _DetailPageState extends State<DetailPage> {
                               const SizedBox(
                                 width: 10,
                               ),
-                              Icon(Icons.check_circle,
-                                  size: 18,
-                                  color: Theme.of(context).primaryColor),
-                              Spacer(),
+                              // Icon(Icons.check_circle,
+                              //     size: 18,
+                              //     color: Theme.of(context).primaryColor),
+                              // Spacer(),
                               // RatingStar(
                               //   rating: model.rating,
                               // )
@@ -110,36 +152,41 @@ class _DetailPageState extends State<DetailPage> {
                           subtitle: ListView(
                             shrinkWrap: true,
                             children: [
-                              Container(
-                                height: 20,
-                                child: ListView.builder(
-                                  physics: BouncingScrollPhysics(),
-                                  itemCount:
-                                      cateList.isNotEmpty && cateList != null
+                              Row(
+                                children: [
+                                  Text("Danh mục : "),
+                                  Container(
+                                    height: 20,
+                                    child: ListView.builder(
+                                      physics: BouncingScrollPhysics(),
+                                      itemCount: cateList.isNotEmpty &&
+                                              cateList != null
                                           ? cateList.length
                                           : null,
-                                  shrinkWrap: true,
-                                  scrollDirection: Axis.horizontal,
-                                  itemBuilder:
-                                      ((BuildContext context, int index) {
-                                    if (cateList.isNotEmpty &&
-                                        cateList != null) {
-                                      return Row(
-                                        children: [
-                                          Text(
-                                            cateList[index].name.toString(),
-                                            style: TextStyles
-                                                .bodySm.subTitleColor.bold,
-                                          ),
-                                          SizedBox(
-                                            width: 5,
-                                            child: Text(", "),
-                                          ),
-                                        ],
-                                      );
-                                    }
-                                  }),
-                                ),
+                                      shrinkWrap: true,
+                                      scrollDirection: Axis.horizontal,
+                                      itemBuilder:
+                                          ((BuildContext context, int index) {
+                                        if (cateList.isNotEmpty &&
+                                            cateList != null) {
+                                          return Row(
+                                            children: [
+                                              Text(
+                                                cateList[index].name.toString(),
+                                                style: TextStyles
+                                                    .bodySm.subTitleColor.bold,
+                                              ),
+                                              SizedBox(
+                                                width: 5,
+                                                child: Text(", "),
+                                              ),
+                                            ],
+                                          );
+                                        }
+                                      }),
+                                    ),
+                                  ),
+                                ],
                               )
                             ],
                           ),
@@ -148,65 +195,62 @@ class _DetailPageState extends State<DetailPage> {
                           thickness: .3,
                           color: LightColor.grey,
                         ),
-                        const Divider(
-                          thickness: .3,
-                          color: LightColor.grey,
-                        ),
+
                         Text("Thông tin", style: titleStyle).vP16,
                         Html(data: model.content),
-                        Text(
-                          model.content,
-                          style: TextStyles.body.subTitleColor,
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: <Widget>[
-                            Container(
-                              height: 45,
-                              width: 45,
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(10),
-                                  color: LightColor.grey.withAlpha(150)),
-                              child: const Icon(
-                                Icons.call,
-                                color: Colors.white,
-                              ),
-                            ).ripple(
-                              () {},
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            const SizedBox(
-                              width: 10,
-                            ),
-                            Container(
-                              height: 45,
-                              width: 45,
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(10),
-                                  color: LightColor.grey.withAlpha(150)),
-                              child: const Icon(
-                                Icons.chat_bubble,
-                                color: Colors.white,
-                              ),
-                            ).ripple(
-                              () {},
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            const SizedBox(
-                              width: 10,
-                            ),
-                            FlatButton(
-                              color: Theme.of(context).primaryColor,
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10)),
-                              onPressed: () {},
-                              child: Text(
-                                "Make an appointment",
-                                style: TextStyles.titleNormal.white,
-                              ).p(10),
-                            ),
-                          ],
-                        ).vP16
+                        // Text(
+                        //   model.content,
+                        //   style: TextStyles.body.subTitleColor,
+                        // ),
+                        // Row(
+                        //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        //   children: <Widget>[
+                        //     Container(
+                        //       height: 45,
+                        //       width: 45,
+                        //       decoration: BoxDecoration(
+                        //           borderRadius: BorderRadius.circular(10),
+                        //           color: LightColor.grey.withAlpha(150)),
+                        //       child: const Icon(
+                        //         Icons.call,
+                        //         color: Colors.white,
+                        //       ),
+                        //     ).ripple(
+                        //       () {},
+                        //       borderRadius: BorderRadius.circular(10),
+                        //     ),
+                        //     const SizedBox(
+                        //       width: 10,
+                        //     ),
+                        //     Container(
+                        //       height: 45,
+                        //       width: 45,
+                        //       decoration: BoxDecoration(
+                        //           borderRadius: BorderRadius.circular(10),
+                        //           color: LightColor.grey.withAlpha(150)),
+                        //       child: const Icon(
+                        //         Icons.chat_bubble,
+                        //         color: Colors.white,
+                        //       ),
+                        //     ).ripple(
+                        //       () {},
+                        //       borderRadius: BorderRadius.circular(10),
+                        //     ),
+                        //     const SizedBox(
+                        //       width: 10,
+                        //     ),
+                        //     // FlatButton(
+                        //     //   color: Theme.of(context).primaryColor,
+                        //     //   shape: RoundedRectangleBorder(
+                        //     //       borderRadius: BorderRadius.circular(10)),
+                        //     //   onPressed: () {},
+                        //     //   child: Text(
+                        //     //     "Make an appointment",
+                        //     //     style: TextStyles.titleNormal.white,
+                        //     //   ).p(10),
+                        //     // ),
+                        //   ],
+                        // ).vP16
                       ],
                     ),
                   ),

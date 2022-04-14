@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:health_app/src/providers/category_provider.dart';
 import 'package:health_app/src/providers/news_provider.dart';
 import 'package:health_app/src/providers/user_provider.dart';
 import 'package:health_app/src/theme/theme.dart';
@@ -20,7 +21,8 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => UserProvider()),
-        ChangeNotifierProvider(create: (_) => NewsProvider())
+        ChangeNotifierProvider(create: (_) => NewsProvider()),
+        ChangeNotifierProvider(create: (_) => CategoryProvider())
       ],
       child: MaterialApp(
         title: 'Health Care',

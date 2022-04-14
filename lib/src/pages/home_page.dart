@@ -3,13 +3,17 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:health_app/src/config/api_url.dart';
+import 'package:health_app/src/model/category_model.dart';
 import 'package:health_app/src/model/news_model.dart';
+import 'package:health_app/src/providers/category_provider.dart';
 import 'package:health_app/src/providers/news_provider.dart';
 import 'package:health_app/src/theme/extention.dart';
 import 'package:provider/provider.dart';
 
 import '../model/dactor_model.dart';
 import '../model/data.dart';
+import '../model/user_model.dart';
+import '../providers/user_provider.dart';
 import '../theme/light_color.dart';
 import '../theme/text_styles.dart';
 import '../theme/theme.dart';
@@ -22,42 +26,127 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  Widget _appBar() {
+  List<News> futureData;
+  List<Images> imgNews = [];
+  List<News> newsMore;
+  List<Category> categoryData;
+  ScrollController controller;
+  int position = 0;
+  int pageSize = 5;
+  bool isLoadingTop = false;
+  bool isLoadingBot = false;
+
+  @override
+  void initState() {
+    if (SchedulerBinding.instance.schedulerPhase ==
+        SchedulerPhase.persistentCallbacks) {
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        getNewsList();
+        getCateList();
+      });
+    }
+    super.initState();
+    controller = ScrollController()..addListener(_scrollListener);
+  }
+
+  @override
+  void dispose() {
+    controller.removeListener(_scrollListener);
+    super.dispose();
+  }
+
+  void getNewsList() async {
+    var fetchedNews = await Provider.of<NewsProvider>(context, listen: false)
+        .getNews(position, pageSize) as List<News>;
+    setState(() {
+      futureData = fetchedNews;
+    });
+  }
+
+  void getCateList() async {
+    var fetchedCate =
+        await Provider.of<CategoryProvider>(context, listen: false)
+            .getCategory() as List<Category>;
+    setState(() {
+      categoryData = fetchedCate;
+    });
+  }
+
+  void _scrollListener() async {
+    print(controller.position.extentAfter);
+    if (controller.position.pixels == controller.position.maxScrollExtent) {
+      var fetchedNews = await Provider.of<NewsProvider>(context, listen: false)
+          .getNews(position + 5, pageSize + 5) as List<News>;
+      setState(() {});
+      if (fetchedNews != null &&
+          fetchedNews.isNotEmpty &&
+          fetchedNews.length > 0) {
+        setState(() {
+          futureData = futureData + fetchedNews;
+          position += 5;
+          pageSize += 5;
+        });
+      }
+
+      print("AAAAA => " + position.toString() + "  -  " + pageSize.toString());
+    }
+
+    if (controller.position.pixels == controller.position.minScrollExtent) {
+      setState(() {
+        position = 0;
+        pageSize = 5;
+      });
+
+      var fetchedNews = await Provider.of<NewsProvider>(context, listen: false)
+          .getNews(position, pageSize) as List<News>;
+      if (fetchedNews != null &&
+          fetchedNews.isNotEmpty &&
+          fetchedNews.length > 0) {
+        setState(() {
+          futureData = fetchedNews;
+        });
+      }
+    }
+  }
+
+  Widget _appBar(String userIMG) {
     return AppBar(
       elevation: 0,
       backgroundColor: Theme.of(context).backgroundColor,
-      leading: Icon(
+      leading: const Icon(
         Icons.short_text,
         size: 30,
         color: Colors.black,
       ),
       actions: <Widget>[
-        Icon(
+        const Icon(
           Icons.notifications_none,
           size: 30,
           color: LightColor.grey,
         ),
         ClipRRect(
-          borderRadius: BorderRadius.all(Radius.circular(13)),
+          borderRadius: const BorderRadius.all(Radius.circular(13)),
           child: Container(
             // height: 40,
             // width: 40,
             decoration: BoxDecoration(
               color: Theme.of(context).backgroundColor,
             ),
-            child: Image.asset("assets/user.png", fit: BoxFit.fill),
+            child: userIMG != null
+                ? Image.network(API_URL.getImage + userIMG, fit: BoxFit.fill)
+                : Image.asset("assets/user.png", fit: BoxFit.fill),
           ),
         ).p(8),
       ],
     );
   }
 
-  Widget _header() {
+  Widget _header(String name) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        Text("Hello,", style: TextStyles.title.subTitleColor),
-        Text("Peter Parker", style: TextStyles.h1Style),
+        Text("Xin chào,", style: TextStyles.title.subTitleColor),
+        Text(name, style: TextStyles.h1Style),
       ],
     ).p16;
   }
@@ -102,9 +191,9 @@ class _HomePageState extends State<HomePage> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
-              Text("Category", style: TextStyles.title.bold),
+              Text("Danh mục", style: TextStyles.title.bold),
               Text(
-                "See All",
+                "Tất cả",
                 style: TextStyles.titleNormal
                     .copyWith(color: Theme.of(context).primaryColor),
               ).p(8).ripple(() {})
@@ -116,18 +205,32 @@ class _HomePageState extends State<HomePage> {
           width: AppTheme.fullWidth(context),
           child: ListView(
             scrollDirection: Axis.horizontal,
-            children: <Widget>[
-              _categoryCard("Chemist & Drugist", "350 + Stores",
-                  color: LightColor.green, lightColor: LightColor.lightGreen),
-              _categoryCard("Covid - 19 Specialist", "899 Doctors",
-                  color: LightColor.skyBlue, lightColor: LightColor.lightBlue),
-              _categoryCard("Cardiologists Specialist", "500 + Doctors",
-                  color: LightColor.orange, lightColor: LightColor.lightOrange),
-              _categoryCard("Dermatologist", "300 + Doctors",
-                  color: LightColor.green, lightColor: LightColor.lightGreen),
-              _categoryCard("General Surgeon", "500 + Doctors",
-                  color: LightColor.skyBlue, lightColor: LightColor.lightBlue)
+            shrinkWrap: true,
+            children: [
+              ListView.builder(
+                  physics: BouncingScrollPhysics(),
+                  shrinkWrap: true,
+                  itemCount: categoryData != null ? categoryData.length : null,
+                  itemBuilder: (BuildContext context, int index) {
+                    if (categoryData.isNotEmpty && categoryData.length > 0) {
+                      return _categoryCard(categoryData[index].name, "",
+                          color: LightColor.skyBlue,
+                          lightColor: LightColor.lightBlue);
+                    }
+                  })
             ],
+            // children: <Widget>[
+            //   itemBuilder: (BuildContext context, int index)"Chemist & Drugist", "350 + Stores",
+            //       color: LightColor.green, lightColor: LightColor.lightGreen),
+            //   _categoryCard("Covid - 19 Specialist", "899 Doctors",
+            //       color: LightColor.skyBlue, lightColor: LightColor.lightBlue),
+            //   _categoryCard("Cardiologists Specialist", "500 + Doctors",
+            //       color: LightColor.orange, lightColor: LightColor.lightOrange),
+            //   _categoryCard("Dermatologist", "300 + Doctors",
+            //       color: LightColor.green, lightColor: LightColor.lightGreen),
+            //   _categoryCard("General Surgeon", "500 + Doctors",
+            //       color: LightColor.skyBlue, lightColor: LightColor.lightBlue)
+            // ],
           ),
         ),
       ],
@@ -214,81 +317,13 @@ class _HomePageState extends State<HomePage> {
     return color;
   }
 
-  List<News> futureData;
-  ScrollController controller;
-  int position = 0;
-  int pageSize = 5;
-  bool isLoadingTop = false;
-  bool isLoadingBot = false;
-
-  List<News> newsMore;
-
-  void initState() {
-    if (SchedulerBinding.instance.schedulerPhase ==
-        SchedulerPhase.persistentCallbacks) {
-      SchedulerBinding.instance.addPostFrameCallback((_) {
-        getNewsList();
-      });
-    }
-    super.initState();
-    controller = ScrollController()..addListener(_scrollListener);
-  }
-
-  @override
-  void dispose() {
-    controller.removeListener(_scrollListener);
-    super.dispose();
-  }
-
-  void getNewsList() async {
-    var fetchedNews = await Provider.of<NewsProvider>(context, listen: false)
-        .getNews(position, pageSize) as List<News>;
-    setState(() {
-      futureData = fetchedNews;
-    });
-  }
-
-  void _scrollListener() async {
-    print(controller.position.extentAfter);
-    if (controller.position.pixels == controller.position.maxScrollExtent) {
-      var fetchedNews = await Provider.of<NewsProvider>(context, listen: false)
-          .getNews(position + 5, pageSize + 5) as List<News>;
-      setState(() {});
-      if (fetchedNews != null &&
-          fetchedNews.isNotEmpty &&
-          fetchedNews.length > 0) {
-        setState(() {
-          futureData = futureData + fetchedNews;
-          position += 5;
-          pageSize += 5;
-        });
-      }
-
-      print("AAAAA => " + position.toString() + "  -  " + pageSize.toString());
-    }
-
-    if (controller.position.pixels == controller.position.minScrollExtent) {
-      setState(() {
-        position = 0;
-        pageSize = 5;
-      });
-
-      var fetchedNews = await Provider.of<NewsProvider>(context, listen: false)
-          .getNews(position, pageSize) as List<News>;
-      if (fetchedNews != null &&
-          fetchedNews.isNotEmpty &&
-          fetchedNews.length > 0) {
-        setState(() {
-          futureData = fetchedNews;
-        });
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
+    User user;
+    user = Provider.of<UserProvider>(context).user;
+
     return Scaffold(
-      appBar: _appBar(),
+      appBar: _appBar(user.avatar_url != null ? user.avatar_url : null),
       backgroundColor: Theme.of(context).backgroundColor,
       body: futureData == null || futureData.length < 0
           ? Center(child: CircularProgressIndicator())
@@ -296,13 +331,13 @@ class _HomePageState extends State<HomePage> {
               controller: controller,
               physics: BouncingScrollPhysics(),
               children: [
-                _header(),
+                _header(user.full_name),
                 _searchField(),
                 _category(),
                 ListView.builder(
                     shrinkWrap: true,
                     physics: ScrollPhysics(),
-                    itemCount: futureData.length,
+                    itemCount: futureData.length ?? null,
                     itemBuilder: (BuildContext context, int index) {
                       return _listNewsWidget(futureData, index, context);
                     }),
@@ -311,7 +346,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  List<Images> imgNews = [];
   Container _listNewsWidget(List<News> data, int index, BuildContext context) {
     imgNews = data[index].news_Imgs as List;
     // if (imgNews != null && imgNews.length > 0) {
