@@ -184,55 +184,59 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _category() {
-    return Column(
-      children: <Widget>[
-        Padding(
-          padding: EdgeInsets.only(top: 8, right: 16, left: 16, bottom: 4),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              Text("Danh mục", style: TextStyles.title.bold),
-              Text(
-                "Tất cả",
-                style: TextStyles.titleNormal
-                    .copyWith(color: Theme.of(context).primaryColor),
-              ).p(8).ripple(() {})
-            ],
+  Widget _category(List<Category> categoryData) {
+    return Container(
+      height: 200,
+      width: MediaQuery.of(context).size.width,
+      alignment: Alignment.center,
+      child: Column(
+        children: <Widget>[
+          Padding(
+            padding: EdgeInsets.only(top: 8, right: 16, left: 16, bottom: 4),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                Text("Danh mục", style: TextStyles.title.bold),
+                Text(
+                  "Tất cả",
+                  style: TextStyles.titleNormal
+                      .copyWith(color: Theme.of(context).primaryColor),
+                ).p(8).ripple(() {})
+              ],
+            ),
           ),
-        ),
-        // Container(
-        //   child: ListView(
-        //     scrollDirection: Axis.horizontal,
-        //     shrinkWrap: true,
-        //     children: [
-        //       ListView.builder(
-        //           physics: BouncingScrollPhysics(),
-        //           shrinkWrap: true,
-        //           itemCount: categoryData != null ? categoryData.length : null,
-        //           itemBuilder: (BuildContext context, int index) {
-        //             if (categoryData.isNotEmpty && categoryData.length > 0) {
-        //               return _categoryCard(categoryData[index].name, "",
-        //                   color: LightColor.skyBlue,
-        //                   lightColor: LightColor.lightBlue);
-        //             }
-        //           })
-        //     ],
-        //     // children: <Widget>[
-        //     //   itemBuilder: (BuildContext context, int index)"Chemist & Drugist", "350 + Stores",
-        //     //       color: LightColor.green, lightColor: LightColor.lightGreen),
-        //     //   _categoryCard("Covid - 19 Specialist", "899 Doctors",
-        //     //       color: LightColor.skyBlue, lightColor: LightColor.lightBlue),
-        //     //   _categoryCard("Cardiologists Specialist", "500 + Doctors",
-        //     //       color: LightColor.orange, lightColor: LightColor.lightOrange),
-        //     //   _categoryCard("Dermatologist", "300 + Doctors",
-        //     //       color: LightColor.green, lightColor: LightColor.lightGreen),
-        //     //   _categoryCard("General Surgeon", "500 + Doctors",
-        //     //       color: LightColor.skyBlue, lightColor: LightColor.lightBlue)
-        //     // ],
-        //   ),
-        // ),
-      ],
+          Expanded(
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              shrinkWrap: true,
+              children: [
+                Container(
+                  height: 100,
+                  width: MediaQuery.of(context).size.width,
+                  alignment: Alignment.center,
+                  child: ListView.builder(
+                      physics: BouncingScrollPhysics(),
+                      shrinkWrap: true,
+                      scrollDirection: Axis.horizontal,
+                      itemCount:
+                          categoryData != null ? categoryData.length : null,
+                      itemBuilder: (BuildContext context, int index) {
+                        if (categoryData != null && categoryData.length > 0) {
+                          return _categoryCard(categoryData[index].name, "",
+                              color: LightColor.green,
+                              lightColor: LightColor.lightGreen);
+                        }
+                      }),
+                )
+              ],
+              // children: <Widget>[
+              //   itemBuilder: (BuildContext context, int index)"Chemist & Drugist", "350 + Stores",
+              //       color: LightColor.green, lightColor: LightColor.lightGreen)],
+              // ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -271,21 +275,18 @@ class _HomePageState extends State<HomePage> {
                   left: -20,
                   child: CircleAvatar(
                     backgroundColor: lightColor,
-                    radius: 60,
+                    radius: 30,
                   ),
                 ),
                 Column(
-                  mainAxisAlignment: MainAxisAlignment.end,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
                     Flexible(
-                      child: Text(title, style: titleStyle).hP8,
-                    ),
-                    SizedBox(height: 10),
-                    Flexible(
-                      child: Text(
-                        subtitle,
-                        style: subtitleStyle,
-                      ).hP8,
+                      child: Text(title,
+                          style: TextStyle(
+                            fontSize: 15,
+                            color: Colors.white,
+                          )),
                     ),
                   ],
                 ).p16
@@ -326,21 +327,40 @@ class _HomePageState extends State<HomePage> {
       backgroundColor: Theme.of(context).backgroundColor,
       body: futureData == null || futureData.length < 0
           ? Center(child: CircularProgressIndicator())
-          : ListView(
-              controller: controller,
-              physics: BouncingScrollPhysics(),
-              children: [
-                _header(user.full_name),
-                _searchField(),
-                _category(),
-                ListView.builder(
-                    shrinkWrap: true,
-                    physics: ScrollPhysics(),
-                    itemCount: futureData.length ?? null,
-                    itemBuilder: (BuildContext context, int index) {
-                      return _listNewsWidget(futureData, index, context);
-                    }),
-              ],
+          : Container(
+              height: MediaQuery.of(context).size.height,
+              width: MediaQuery.of(context).size.width,
+              child: ListView(
+                controller: controller,
+                physics: BouncingScrollPhysics(),
+                children: [
+                  _header(user.full_name),
+                  _searchField(),
+                  _category(categoryData),
+                  Padding(
+                    padding:
+                        EdgeInsets.only(top: 8, right: 16, left: 16, bottom: 4),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        Text("Bài viết", style: TextStyles.title.bold),
+                        Text(
+                          "Tất cả",
+                          style: TextStyles.titleNormal
+                              .copyWith(color: Theme.of(context).primaryColor),
+                        ).p(8).ripple(() {})
+                      ],
+                    ),
+                  ),
+                  ListView.builder(
+                      shrinkWrap: true,
+                      physics: ScrollPhysics(),
+                      itemCount: futureData.length ?? null,
+                      itemBuilder: (BuildContext context, int index) {
+                        return _listNewsWidget(futureData, index, context);
+                      }),
+                ],
+              ),
             ),
     );
   }
