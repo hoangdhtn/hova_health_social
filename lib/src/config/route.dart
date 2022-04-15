@@ -5,6 +5,7 @@ import 'package:health_app/src/pages/personal_page.dart';
 import 'package:health_app/src/pages/register_page.dart';
 import 'package:health_app/src/pages/social_page.dart';
 
+import '../pages/category_detail_page.dart';
 import '../pages/detail_page.dart';
 import '../pages/forget_pass_page.dart';
 import '../pages/home_page.dart';
@@ -24,6 +25,7 @@ class Routes {
       '/MedicalPage': (_) => MedicalPage(),
       '/SocialPage': (_) => SocialPage(),
       '/PersonalPage': (_) => PersonalPage(),
+      '/CategoryDetailPage': (_) => CategoryDetailPage(),
     };
   }
 
@@ -37,6 +39,12 @@ class Routes {
         return CustomRoute<bool>(
             builder: (BuildContext context) => DetailPage(
                   model: settings.arguments,
+                ));
+        break;
+      case "CategoryDetailPage":
+        return CustomRoute<bool>(
+            builder: (BuildContext context) => CategoryDetailPage(
+                  id: settings.arguments,
                 ));
         break;
     }

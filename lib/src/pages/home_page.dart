@@ -172,7 +172,7 @@ class _HomePageState extends State<HomePage> {
         decoration: InputDecoration(
           contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
           border: InputBorder.none,
-          hintText: "Search",
+          hintText: "Tìm kiếm",
           hintStyle: TextStyles.body.subTitleColor,
           suffixIcon: SizedBox(
               width: 50,
@@ -222,9 +222,14 @@ class _HomePageState extends State<HomePage> {
                           categoryData != null ? categoryData.length : null,
                       itemBuilder: (BuildContext context, int index) {
                         if (categoryData != null && categoryData.length > 0) {
-                          return _categoryCard(categoryData[index].name, "",
-                              color: LightColor.green,
-                              lightColor: LightColor.lightGreen);
+                          return Container(
+                            child: _categoryCard(categoryData[index].name, "",
+                                color: LightColor.skyBlue,
+                                lightColor: Color.fromARGB(255, 199, 199, 235)),
+                          ).ripple(() {
+                            Navigator.pushNamed(context, "/CategoryDetailPage",
+                                arguments: categoryData[index].id);
+                          });
                         }
                       }),
                 )
@@ -283,9 +288,10 @@ class _HomePageState extends State<HomePage> {
                   children: <Widget>[
                     Flexible(
                       child: Text(title,
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 15,
                             color: Colors.white,
+                            fontWeight: FontWeight.bold,
                           )),
                     ),
                   ],
