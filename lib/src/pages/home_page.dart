@@ -70,6 +70,7 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       categoryData = fetchedCate;
     });
+    print("Cate list view : " + categoryData.toString());
   }
 
   void _scrollListener() async {
@@ -200,39 +201,37 @@ class _HomePageState extends State<HomePage> {
             ],
           ),
         ),
-        SizedBox(
-          height: AppTheme.fullHeight(context) * .28,
-          width: AppTheme.fullWidth(context),
-          child: ListView(
-            scrollDirection: Axis.horizontal,
-            shrinkWrap: true,
-            children: [
-              ListView.builder(
-                  physics: BouncingScrollPhysics(),
-                  shrinkWrap: true,
-                  itemCount: categoryData != null ? categoryData.length : null,
-                  itemBuilder: (BuildContext context, int index) {
-                    if (categoryData.isNotEmpty && categoryData.length > 0) {
-                      return _categoryCard(categoryData[index].name, "",
-                          color: LightColor.skyBlue,
-                          lightColor: LightColor.lightBlue);
-                    }
-                  })
-            ],
-            // children: <Widget>[
-            //   itemBuilder: (BuildContext context, int index)"Chemist & Drugist", "350 + Stores",
-            //       color: LightColor.green, lightColor: LightColor.lightGreen),
-            //   _categoryCard("Covid - 19 Specialist", "899 Doctors",
-            //       color: LightColor.skyBlue, lightColor: LightColor.lightBlue),
-            //   _categoryCard("Cardiologists Specialist", "500 + Doctors",
-            //       color: LightColor.orange, lightColor: LightColor.lightOrange),
-            //   _categoryCard("Dermatologist", "300 + Doctors",
-            //       color: LightColor.green, lightColor: LightColor.lightGreen),
-            //   _categoryCard("General Surgeon", "500 + Doctors",
-            //       color: LightColor.skyBlue, lightColor: LightColor.lightBlue)
-            // ],
-          ),
-        ),
+        // Container(
+        //   child: ListView(
+        //     scrollDirection: Axis.horizontal,
+        //     shrinkWrap: true,
+        //     children: [
+        //       ListView.builder(
+        //           physics: BouncingScrollPhysics(),
+        //           shrinkWrap: true,
+        //           itemCount: categoryData != null ? categoryData.length : null,
+        //           itemBuilder: (BuildContext context, int index) {
+        //             if (categoryData.isNotEmpty && categoryData.length > 0) {
+        //               return _categoryCard(categoryData[index].name, "",
+        //                   color: LightColor.skyBlue,
+        //                   lightColor: LightColor.lightBlue);
+        //             }
+        //           })
+        //     ],
+        //     // children: <Widget>[
+        //     //   itemBuilder: (BuildContext context, int index)"Chemist & Drugist", "350 + Stores",
+        //     //       color: LightColor.green, lightColor: LightColor.lightGreen),
+        //     //   _categoryCard("Covid - 19 Specialist", "899 Doctors",
+        //     //       color: LightColor.skyBlue, lightColor: LightColor.lightBlue),
+        //     //   _categoryCard("Cardiologists Specialist", "500 + Doctors",
+        //     //       color: LightColor.orange, lightColor: LightColor.lightOrange),
+        //     //   _categoryCard("Dermatologist", "300 + Doctors",
+        //     //       color: LightColor.green, lightColor: LightColor.lightGreen),
+        //     //   _categoryCard("General Surgeon", "500 + Doctors",
+        //     //       color: LightColor.skyBlue, lightColor: LightColor.lightBlue)
+        //     // ],
+        //   ),
+        // ),
       ],
     );
   }

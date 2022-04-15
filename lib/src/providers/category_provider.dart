@@ -30,7 +30,12 @@ class CategoryProvider extends ChangeNotifier {
       );
 
       if (response.statusCode == 200) {
-        cateList = response.data;
+        final data = response.data;
+        cateList.addAll(
+          data.map<Category>(
+            (json) => Category.fromJson(json),
+          ),
+        );
       } else {
         cateList = null;
       }
