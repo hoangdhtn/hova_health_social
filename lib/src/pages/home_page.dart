@@ -155,28 +155,29 @@ class _HomePageState extends State<HomePage> {
   Widget _searchField() {
     return Container(
       height: 55,
-      margin: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       width: MediaQuery.of(context).size.width,
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.all(Radius.circular(13)),
+        borderRadius: const BorderRadius.all(Radius.circular(13)),
         boxShadow: <BoxShadow>[
           BoxShadow(
             color: LightColor.grey.withOpacity(.3),
             blurRadius: 15,
-            offset: Offset(5, 5),
+            offset: const Offset(5, 5),
           )
         ],
       ),
       child: TextField(
         decoration: InputDecoration(
-          contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
           border: InputBorder.none,
           hintText: "Tìm kiếm",
           hintStyle: TextStyles.body.subTitleColor,
           suffixIcon: SizedBox(
               width: 50,
-              child: Icon(Icons.search, color: LightColor.purple)
+              child: const Icon(Icons.search, color: LightColor.purple)
                   .alignCenter
                   .ripple(() {}, borderRadius: BorderRadius.circular(13))),
         ),
@@ -192,7 +193,8 @@ class _HomePageState extends State<HomePage> {
       child: Column(
         children: <Widget>[
           Padding(
-            padding: EdgeInsets.only(top: 8, right: 16, left: 16, bottom: 4),
+            padding:
+                const EdgeInsets.only(top: 8, right: 16, left: 16, bottom: 4),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
@@ -214,24 +216,30 @@ class _HomePageState extends State<HomePage> {
                   height: 100,
                   width: MediaQuery.of(context).size.width,
                   alignment: Alignment.center,
-                  child: ListView.builder(
-                      physics: BouncingScrollPhysics(),
-                      shrinkWrap: true,
-                      scrollDirection: Axis.horizontal,
-                      itemCount:
-                          categoryData != null ? categoryData.length : null,
-                      itemBuilder: (BuildContext context, int index) {
-                        if (categoryData != null && categoryData.length > 0) {
-                          return Container(
-                            child: _categoryCard(categoryData[index].name, "",
-                                color: LightColor.skyBlue,
-                                lightColor: Color.fromARGB(255, 199, 199, 235)),
-                          ).ripple(() {
-                            Navigator.pushNamed(context, "/CategoryDetailPage",
-                                arguments: categoryData[index].id);
-                          });
-                        }
-                      }),
+                  child: categoryData == null || categoryData.length < 0
+                      ? const Center(child: const CircularProgressIndicator())
+                      : ListView.builder(
+                          physics: const BouncingScrollPhysics(),
+                          shrinkWrap: true,
+                          scrollDirection: Axis.horizontal,
+                          itemCount:
+                              categoryData != null ? categoryData.length : null,
+                          itemBuilder: (BuildContext context, int index) {
+                            if (categoryData != null &&
+                                categoryData.length > 0) {
+                              return Container(
+                                child: _categoryCard(
+                                    categoryData[index].name, "",
+                                    color: LightColor.skyBlue,
+                                    lightColor: const Color.fromARGB(
+                                        255, 199, 199, 235)),
+                              ).ripple(() {
+                                Navigator.pushNamed(
+                                    context, "/CategoryDetailPage",
+                                    arguments: categoryData[index]);
+                              });
+                            }
+                          }),
                 )
               ],
               // children: <Widget>[
@@ -258,20 +266,20 @@ class _HomePageState extends State<HomePage> {
       child: Container(
         height: 280,
         width: AppTheme.fullWidth(context) * .3,
-        margin: EdgeInsets.only(left: 10, right: 10, bottom: 20, top: 10),
+        margin: const EdgeInsets.only(left: 10, right: 10, bottom: 20, top: 10),
         decoration: BoxDecoration(
           color: color,
-          borderRadius: BorderRadius.all(Radius.circular(20)),
+          borderRadius: const BorderRadius.all(const Radius.circular(20)),
           boxShadow: <BoxShadow>[
             BoxShadow(
-              offset: Offset(4, 4),
+              offset: const Offset(4, 4),
               blurRadius: 10,
               color: lightColor.withOpacity(.8),
             )
           ],
         ),
         child: ClipRRect(
-          borderRadius: BorderRadius.all(Radius.circular(20)),
+          borderRadius: const BorderRadius.all(Radius.circular(20)),
           child: Container(
             child: Stack(
               children: <Widget>[
@@ -299,7 +307,8 @@ class _HomePageState extends State<HomePage> {
               ],
             ),
           ),
-        ).ripple(() {}, borderRadius: BorderRadius.all(Radius.circular(20))),
+        ).ripple(() {},
+            borderRadius: const BorderRadius.all(const Radius.circular(20))),
       ),
     );
   }
@@ -332,20 +341,20 @@ class _HomePageState extends State<HomePage> {
       appBar: _appBar(user.avatar_url != null ? user.avatar_url : null),
       backgroundColor: Theme.of(context).backgroundColor,
       body: futureData == null || futureData.length < 0
-          ? Center(child: CircularProgressIndicator())
+          ? const Center(child: const CircularProgressIndicator())
           : Container(
               height: MediaQuery.of(context).size.height,
               width: MediaQuery.of(context).size.width,
               child: ListView(
                 controller: controller,
-                physics: BouncingScrollPhysics(),
+                physics: const BouncingScrollPhysics(),
                 children: [
                   _header(user.full_name),
                   _searchField(),
                   _category(categoryData),
                   Padding(
-                    padding:
-                        EdgeInsets.only(top: 8, right: 16, left: 16, bottom: 4),
+                    padding: const EdgeInsets.only(
+                        top: 8, right: 16, left: 16, bottom: 4),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
@@ -360,7 +369,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                   ListView.builder(
                       shrinkWrap: true,
-                      physics: ScrollPhysics(),
+                      physics: const ScrollPhysics(),
                       itemCount: futureData.length ?? null,
                       itemBuilder: (BuildContext context, int index) {
                         return _listNewsWidget(futureData, index, context);
@@ -383,15 +392,15 @@ class _HomePageState extends State<HomePage> {
         margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.all(Radius.circular(20)),
+          borderRadius: const BorderRadius.all(Radius.circular(20)),
           boxShadow: <BoxShadow>[
             BoxShadow(
-              offset: Offset(4, 4),
+              offset: const Offset(4, 4),
               blurRadius: 10,
               color: LightColor.grey.withOpacity(.2),
             ),
             BoxShadow(
-              offset: Offset(-3, 0),
+              offset: const Offset(-3, 0),
               blurRadius: 15,
               color: LightColor.grey.withOpacity(.1),
             )
@@ -400,7 +409,7 @@ class _HomePageState extends State<HomePage> {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
           child: ListTile(
-            contentPadding: EdgeInsets.all(0),
+            contentPadding: const EdgeInsets.all(0),
             leading: ClipRRect(
               borderRadius: const BorderRadius.all(Radius.circular(13)),
               child: Container(

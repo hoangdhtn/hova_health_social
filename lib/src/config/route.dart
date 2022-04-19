@@ -44,7 +44,7 @@ class Routes {
       case "CategoryDetailPage":
         return CustomRoute<bool>(
             builder: (BuildContext context) => CategoryDetailPage(
-                  id: settings.arguments,
+                  model: settings.arguments,
                 ));
         break;
     }
