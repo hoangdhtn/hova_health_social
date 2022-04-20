@@ -231,8 +231,7 @@ class _HomePageState extends State<HomePage> {
                                 child: _categoryCard(
                                     categoryData[index].name, "",
                                     color: LightColor.skyBlue,
-                                    lightColor: const Color.fromARGB(
-                                        255, 199, 199, 235)),
+                                    lightColor: Colors.black.withOpacity(0.05)),
                               ).ripple(() {
                                 Navigator.pushNamed(
                                     context, "/CategoryDetailPage",

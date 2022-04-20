@@ -26,7 +26,7 @@ class CardItems extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       margin: EdgeInsets.only(bottom: 20),
-      height: 100,
+      height: 140,
       decoration: new BoxDecoration(
         borderRadius: BorderRadius.all(Radius.circular(10.0)),
         shape: BoxShape.rectangle,
@@ -71,12 +71,12 @@ class CardItems extends StatelessWidget {
                                 fontWeight: FontWeight.bold,
                                 color: Constants.textPrimary),
                           ),
-                          Text(
-                            '$value $unit',
-                            style: TextStyle(
-                                fontSize: 15, color: Constants.textPrimary),
-                          ),
                         ],
+                      ),
+                      Text(
+                        '$value $unit',
+                        style: TextStyle(
+                            fontSize: 15, color: Constants.textPrimary),
                       ),
                       SizedBox(height: 15),
                       (progress == 0 || progress == null)
