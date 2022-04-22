@@ -9,6 +9,8 @@ import '../pages/category_detail_page.dart';
 import '../pages/detail_page.dart';
 import '../pages/forget_pass_page.dart';
 import '../pages/home_page.dart';
+import '../pages/medical_all_page.dart';
+import '../pages/medical_detail_page.dart';
 import '../pages/splash_page.dart';
 import '../widgets/coustom_route.dart';
 import '../widgets/navigation.dart';
@@ -26,6 +28,8 @@ class Routes {
       '/SocialPage': (_) => SocialPage(),
       '/PersonalPage': (_) => PersonalPage(),
       '/CategoryDetailPage': (_) => CategoryDetailPage(),
+      '/MedicalAllPage': (_) => MedicalAllPage(),
+      '/MedicalDetailPage': (_) => MedicalDetailPage(),
     };
   }
 

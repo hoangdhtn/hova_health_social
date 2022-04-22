@@ -8,7 +8,7 @@ import '../config/api_url.dart';
 import '../config/user_preferences.dart';
 
 class MedicalProvider extends ChangeNotifier {
-  getMedical() async {
+  getMedical(int pos, int pagesize) async {
     Future<String> token = UserPreferences().getToken();
     String tokenA = await token;
 
@@ -17,7 +17,7 @@ class MedicalProvider extends ChangeNotifier {
     try {
       var response = Response();
       response = await Dio().get(
-        API_URL.medical,
+        API_URL.medical + "/" + pos.toString() + "/" + pagesize.toString(),
         options: Options(
           headers: {
             HttpHeaders.contentTypeHeader: "application/json",
@@ -45,5 +45,40 @@ class MedicalProvider extends ChangeNotifier {
     print("MEDICAL : " + listMedical.toString());
     print("MEDICAL : " + listMedical.length.toString());
     return listMedical;
+  }
+
+  getDetailMedical(int id) async {
+    Future<String> token = UserPreferences().getToken();
+    String tokenA = await token;
+
+    Medical result = new Medical();
+
+    try {
+      var response = Response();
+      response = await Dio().get(
+        API_URL.medical + "/" + id.toString(),
+        options: Options(
+          headers: {
+            HttpHeaders.contentTypeHeader: "application/json",
+            HttpHeaders.authorizationHeader: "${tokenA}",
+          },
+          followRedirects: false,
+          validateStatus: (status) {
+            return status <= 500;
+          },
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        result = response.data;
+      } else {
+        result = null;
+      }
+    } on DioError catch (e) {
+      print(e.message);
+      result = null;
+    }
+
+    return result;
   }
 }

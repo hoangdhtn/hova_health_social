@@ -1,29 +1,26 @@
-import 'dart:ffi';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:health_app/src/model/medical_model.dart';
-import 'package:health_app/src/providers/medical_provider.dart';
+import 'package:health_app/src/pages/medical_detail_page.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../config/api_url.dart';
+import '../model/medical_model.dart';
 import '../model/user_model.dart';
+import '../providers/medical_provider.dart';
 import '../providers/user_provider.dart';
 import '../theme/const.dart';
 import '../widgets/card_items.dart';
-import '../widgets/card_main.dart';
-import '../widgets/card_section.dart';
 import '../widgets/custom_clipper.dart';
 
-class MedicalPage extends StatefulWidget {
-  const MedicalPage({Key key}) : super(key: key);
+class MedicalAllPage extends StatefulWidget {
+  const MedicalAllPage({Key key}) : super(key: key);
 
   @override
-  State<MedicalPage> createState() => _MedicalPageState();
+  State<MedicalAllPage> createState() => _MedicalAllPageState();
 }
 
-class _MedicalPageState extends State<MedicalPage> {
+class _MedicalAllPageState extends State<MedicalAllPage> {
   List<Medical> listMedical = [];
 
   @override
@@ -48,40 +45,6 @@ class _MedicalPageState extends State<MedicalPage> {
     print("Medical list view : " + listMedical.toString());
   }
 
-  String getBMI(int height, int weight) {
-    double bmi = weight / ((height / 100) * 2);
-    String d1 = bmi.toStringAsPrecision(3);
-    return d1;
-  }
-
-  String getInFoBMT(String bmi) {
-    double a = double.parse(bmi);
-    String result = "";
-    if (a < 18.5) {
-      result = "Gầy";
-    } else {
-      if (a >= 18 && a <= 24.9) {
-        result = "Bình thường";
-      } else {
-        if (a >= 25 && a <= 29.9) {
-          result = "Tăng ca";
-        } else {
-          if (a >= 30 && a <= 34.9) {
-            result = "Béo phì cấp độ 1";
-          } else {
-            if (a >= 35 && a <= 39.9) {
-              result = "Béo phì cấp độ 2";
-            } else {
-              result = "Béo phì cấp độ 3";
-            }
-          }
-        }
-      }
-    }
-
-    return result;
-  }
-
   DateTime stringToDate(String date) {
     DateTime tempDate = new DateFormat("yyyy-MM-dd").parse(date);
     return tempDate;
@@ -92,21 +55,42 @@ class _MedicalPageState extends State<MedicalPage> {
   }
 
   @override
+  Widget _appbar() {
+    return Container(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: <Widget>[
+          BackButton(color: Theme.of(context).primaryColor),
+          // IconButton(
+          //     icon: Icon(
+          //       model.isfavourite ? Icons.favorite : Icons.favorite_border,
+          //       color: model.isfavourite ? Colors.red : LightColor.grey,
+          //     ),
+          //     onPressed: () {
+          //       setState(() {
+          //         model.isfavourite = !model.isfavourite;
+          //       });
+          //     })
+        ],
+      ),
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
     User user;
     user = Provider.of<UserProvider>(context).user;
 
     double statusBarHeight = MediaQuery.of(context).padding.top;
-
     return Scaffold(
-      backgroundColor: Constants.backgroundColor,
-      body: Stack(
-        children: <Widget>[
+        backgroundColor: Constants.backgroundColor,
+        body: // BODY
+            Stack(children: <Widget>[
           ClipPath(
             clipper: MyCustomClipper(clipType: ClipType.bottom),
             child: Container(
               color: Theme.of(context).accentColor,
-              height: Constants.headerHeight + statusBarHeight,
+              height: Constants.headerHeight + statusBarHeight - 30,
             ),
           ),
           Positioned(
@@ -120,18 +104,22 @@ class _MedicalPageState extends State<MedicalPage> {
               ),
             ),
           ),
-
-          // BODY
           Padding(
             padding: EdgeInsets.all(Constants.paddingSide),
             child: ListView(
               children: <Widget>[
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: const <Widget>[
+                    BackButton(color: Colors.white),
+                  ],
+                ),
                 // Header - Greetings and Avatar
                 Row(
                   children: <Widget>[
                     Expanded(
                       child: Text(
-                        "Chỉ số sức khỏe của,\n${user.full_name}",
+                        "Lịch sử bệnh của,\n${user.full_name}",
                         style: const TextStyle(
                             fontSize: 25,
                             fontWeight: FontWeight.w900,
@@ -147,83 +135,7 @@ class _MedicalPageState extends State<MedicalPage> {
                   ],
                 ),
 
-                SizedBox(height: 50),
-
                 // Main Cards - Heartbeat and Blood Pressure
-                Container(
-                  height: 140,
-                  child: ListView(
-                    scrollDirection: Axis.horizontal,
-                    children: <Widget>[
-                      CardMain(
-                        image: AssetImage('assets/icons/heartbeat.png'),
-                        title: "Chỉ số BMI",
-                        value: getBMI(user.height, user.weight),
-                        unit: getInFoBMT(getBMI(user.height, user.weight)),
-                        color: Constants.lightGreen,
-                      ),
-                      CardMain(
-                          image: AssetImage('assets/icons/blooddrop.png'),
-                          title: "Chiều cao & \ncân nặng",
-                          value: "${user.height / 100}/${user.weight}",
-                          unit: "Meter/Kg",
-                          color: Constants.lightYellow)
-                    ],
-                  ),
-                ),
-
-                // Section Cards - Daily Medication
-                SizedBox(height: 50),
-
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      "ĐƠN THUỐC TRONG NGÀY",
-                      style: TextStyle(
-                        color: Constants.textPrimary,
-                        fontSize: 13,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    GestureDetector(
-                      onTap: () {
-                        print("Tap tap");
-                      },
-                      child: const Icon(
-                        Icons.post_add,
-                        color: Colors.black87,
-                        size: 30.0,
-                      ),
-                    ),
-                  ],
-                ),
-
-                SizedBox(height: 20),
-
-                Container(
-                    height: 125,
-                    child: ListView(
-                      scrollDirection: Axis.horizontal,
-                      children: <Widget>[
-                        CardSection(
-                          image: AssetImage('assets/icons/capsule.png'),
-                          title: "Metforminv",
-                          value: "2",
-                          unit: "pills",
-                          time: "6-7AM",
-                          isDone: false,
-                        ),
-                        CardSection(
-                          image: AssetImage('assets/icons/syringe.png'),
-                          title: "Trulicity",
-                          value: "1",
-                          unit: "shot",
-                          time: "8-9AM",
-                          isDone: true,
-                        )
-                      ],
-                    )),
 
                 // Info Medical
                 SizedBox(height: 50),
@@ -232,22 +144,21 @@ class _MedicalPageState extends State<MedicalPage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      "LỊCH SỬ BỆNH",
+                      "",
                       style: TextStyle(
                           color: Constants.textPrimary,
                           fontSize: 13,
                           fontWeight: FontWeight.bold),
                     ),
                     GestureDetector(
-                      onTap: () {
-                        Navigator.pushNamed(context, "/MedicalAllPage");
-                      },
-                      child: Text(
-                        "TẤT CẢ",
+                      onTap: () {},
+                      child: const Text(
+                        "THÊM",
                         style: TextStyle(
-                            color: Constants.textPrimary,
-                            fontSize: 13,
-                            fontWeight: FontWeight.bold),
+                          color: Colors.black87,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ],
@@ -329,54 +240,9 @@ class _MedicalPageState extends State<MedicalPage> {
                           ],
                         ),
                 ),
-
-                SizedBox(height: 20),
-
-                // Scheduled Activities
-                Text(
-                  "LỊCH TRÌNH",
-                  style: TextStyle(
-                      color: Constants.textPrimary,
-                      fontSize: 13,
-                      fontWeight: FontWeight.bold),
-                ),
-
-                SizedBox(height: 20),
-
-                Container(
-                  child: ListView(
-                    scrollDirection: Axis.vertical,
-                    physics: NeverScrollableScrollPhysics(),
-                    shrinkWrap: true,
-                    children: <Widget>[
-                      CardItems(
-                        image: Image.asset(
-                          'assets/icons/Walking.png',
-                        ),
-                        title: "Walking",
-                        value: "750",
-                        unit: "steps",
-                        color: Constants.lightYellow,
-                        progress: 30,
-                      ),
-                      CardItems(
-                        image: Image.asset(
-                          'assets/icons/Swimming.png',
-                        ),
-                        title: "Swimming",
-                        value: "30",
-                        unit: "mins",
-                        color: Constants.lightBlue,
-                        progress: 0,
-                      ),
-                    ],
-                  ),
-                ),
               ],
             ),
-          )
-        ],
-      ),
-    );
+          ),
+        ]));
   }
 }
