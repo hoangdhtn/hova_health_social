@@ -22,6 +22,8 @@ class MedicalAllPage extends StatefulWidget {
 
 class _MedicalAllPageState extends State<MedicalAllPage> {
   List<Medical> listMedical = [];
+  int pageSize = 5;
+  int position = 0;
 
   @override
   void initState() {
@@ -38,11 +40,26 @@ class _MedicalAllPageState extends State<MedicalAllPage> {
   getMedicalList() async {
     var fetchedMedical =
         await Provider.of<MedicalProvider>(context, listen: false)
-            .getMedical(0, 5) as List<Medical>;
+            .getMedical(position, pageSize) as List<Medical>;
     setState(() {
       listMedical = fetchedMedical;
     });
     print("Medical list view : " + listMedical.toString());
+  }
+
+  void _loadmore() async {
+    var fetchedMedical =
+        await Provider.of<MedicalProvider>(context, listen: false)
+            .getMedical(position + 5, pageSize + 5) as List<Medical>;
+    if (fetchedMedical != null &&
+        fetchedMedical.isNotEmpty &&
+        fetchedMedical.length > 0) {
+      setState(() {
+        listMedical.addAll(fetchedMedical);
+        position += 5;
+        pageSize += 5;
+      });
+    }
   }
 
   DateTime stringToDate(String date) {
@@ -237,6 +254,30 @@ class _MedicalAllPageState extends State<MedicalAllPage> {
                             //   color: Constants.lightBlue,
                             //   progress: 0,
                             // ),
+                            Text(position.toString()),
+                            ElevatedButton(
+                              onPressed: () {
+                                _loadmore();
+                              },
+                              style: ElevatedButton.styleFrom(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(80.0),
+                                ),
+                                padding: const EdgeInsets.all(0),
+                                primary: Colors.blueAccent,
+                              ),
+                              child: Container(
+                                padding:
+                                    const EdgeInsets.fromLTRB(50, 5, 50, 5),
+                                child: const Text(
+                                  "Tải thêm ...",
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white),
+                                ),
+                              ),
+                            ),
                           ],
                         ),
                 ),

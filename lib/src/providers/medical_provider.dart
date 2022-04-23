@@ -43,7 +43,6 @@ class MedicalProvider extends ChangeNotifier {
       listMedical = null;
     }
     print("MEDICAL : " + listMedical.toString());
-    print("MEDICAL : " + listMedical.length.toString());
     return listMedical;
   }
 

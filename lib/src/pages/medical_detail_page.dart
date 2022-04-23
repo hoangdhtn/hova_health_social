@@ -1,6 +1,8 @@
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:health_app/src/model/medical_model.dart';
 
+import '../config/api_url.dart';
 import '../theme/const.dart';
 import '../widgets/custom_clipper.dart';
 
@@ -19,6 +21,7 @@ class _MedicalDetailPageState extends State<MedicalDetailPage> {
   Widget build(BuildContext context) {
     Medical model = ModalRoute.of(context).settings.arguments;
     double statusBarHeight = MediaQuery.of(context).padding.top;
+    Size size = MediaQuery.of(context).size;
     return Scaffold(
       backgroundColor: Constants.backgroundColor,
       body: Stack(children: <Widget>[
@@ -73,6 +76,8 @@ class _MedicalDetailPageState extends State<MedicalDetailPage> {
                         labelText: 'Tên bệnh',
                         hintText: model.name,
                         floatingLabelBehavior: FloatingLabelBehavior.always,
+                        fillColor: Color.fromARGB(255, 255, 255, 255),
+                        filled: true,
                       ),
                     ),
                     SizedBox(height: 20),
@@ -87,10 +92,16 @@ class _MedicalDetailPageState extends State<MedicalDetailPage> {
                         labelText: 'Chịu chứng',
                         hintText: model.info,
                         floatingLabelBehavior: FloatingLabelBehavior.always,
+                        fillColor: Color.fromARGB(255, 255, 255, 255),
+                        filled: true,
                       ),
                     ),
                   ],
                 ),
+              ),
+              const Text(
+                "Trạng thái",
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -126,7 +137,83 @@ class _MedicalDetailPageState extends State<MedicalDetailPage> {
                     ),
                   ),
                 ],
-              )
+              ),
+              const SizedBox(height: 20),
+              const Text(
+                "Hình ảnh đơn thuốc - chịu chứng",
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 20),
+              model.listImg != null && model.listImg.isNotEmpty
+                  ? CarouselSlider(
+                      options: CarouselOptions(height: 300.0),
+                      items: model.listImg.map((i) {
+                        return Builder(
+                          builder: (BuildContext context) {
+                            return Container(
+                              width: MediaQuery.of(context).size.width,
+                              margin:
+                                  const EdgeInsets.symmetric(horizontal: 5.0),
+                              decoration: BoxDecoration(
+                                  color: Color.fromARGB(255, 255, 255, 255)),
+                              child: i != null && i.name != null
+                                  ? Image.network(API_URL.getImage + i.name)
+                                  : SizedBox(),
+                            );
+                          },
+                        );
+                      }).toList(),
+                    )
+                  : const SizedBox(),
+              const SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      //Navigator.pushNamed(context, "/BottomNavigation");
+                      //doLogin(_usernameController.text, _passController.text);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(80.0),
+                      ),
+                      padding: const EdgeInsets.all(0),
+                    ),
+                    child: Container(
+                      padding: const EdgeInsets.fromLTRB(50, 5, 50, 5),
+                      child: const Text(
+                        "Cập nhật",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, color: Colors.white),
+                      ),
+                    ),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      //Navigator.pushNamed(context, "/BottomNavigation");
+                      //doLogin(_usernameController.text, _passController.text);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(80.0),
+                      ),
+                      padding: const EdgeInsets.all(0),
+                      primary: Colors.redAccent,
+                    ),
+                    child: Container(
+                      padding: const EdgeInsets.fromLTRB(50, 5, 50, 5),
+                      child: const Text(
+                        "Xóa",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, color: Colors.white),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ],
           ),
         )
