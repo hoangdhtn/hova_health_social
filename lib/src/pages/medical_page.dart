@@ -1,11 +1,14 @@
+import 'dart:convert';
 import 'dart:ffi';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:health_app/src/model/medical_model.dart';
+import 'package:health_app/src/model/medical_today_model.dart';
 import 'package:health_app/src/providers/medical_provider.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../config/api_url.dart';
 import '../model/user_model.dart';
@@ -25,6 +28,8 @@ class MedicalPage extends StatefulWidget {
 
 class _MedicalPageState extends State<MedicalPage> {
   List<Medical> listMedical = [];
+  List<MedicalToday> list;
+  SharedPreferences sharedPreferences;
 
   @override
   void initState() {
@@ -35,7 +40,38 @@ class _MedicalPageState extends State<MedicalPage> {
         getMedicalList();
       });
     }
+    loadSharedPreferencesAndData();
     super.initState();
+  }
+
+  void loadSharedPreferencesAndData() async {
+    sharedPreferences = await SharedPreferences.getInstance();
+    loadData();
+  }
+
+  void loadData() {
+    List<String> listString =
+        sharedPreferences.getStringList('listMedicalToday');
+    if (listString != null) {
+      list = listString
+          .map((item) => MedicalToday.fromMap(json.decode(item)))
+          .toList();
+      setState(() {
+        list = list;
+      });
+    }
+  }
+
+  void saveData() {
+    List<String> stringList =
+        list.map((item) => json.encode(item.toMap())).toList();
+    sharedPreferences.setStringList('listMedicalToday', stringList);
+  }
+
+  void editCheckItem(MedicalToday item, bool check) {
+    item.completed = check;
+    saveData();
+    loadData();
   }
 
   getMedicalList() async {
@@ -188,12 +224,14 @@ class _MedicalPageState extends State<MedicalPage> {
                     ),
                     GestureDetector(
                       onTap: () {
-                        print("Tap tap");
+                        Navigator.pushNamed(context, "/MedicalTodayPage");
                       },
-                      child: const Icon(
-                        Icons.post_add,
-                        color: Colors.black87,
-                        size: 30.0,
+                      child: Text(
+                        "TẤT CẢ",
+                        style: TextStyle(
+                            color: Constants.textPrimary,
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold),
                       ),
                     ),
                   ],
@@ -202,28 +240,59 @@ class _MedicalPageState extends State<MedicalPage> {
                 SizedBox(height: 20),
 
                 Container(
-                    height: 125,
-                    child: ListView(
-                      scrollDirection: Axis.horizontal,
-                      children: <Widget>[
-                        CardSection(
-                          image: AssetImage('assets/icons/capsule.png'),
-                          title: "Metforminv",
-                          value: "2",
-                          unit: "pills",
-                          time: "6-7AM",
-                          isDone: false,
-                        ),
-                        CardSection(
-                          image: AssetImage('assets/icons/syringe.png'),
-                          title: "Trulicity",
-                          value: "1",
-                          unit: "shot",
-                          time: "8-9AM",
-                          isDone: true,
+                  height: 125,
+                  width: MediaQuery.of(context).size.width,
+                  child: list != null && list.length > 0
+                      ? ListView(
+                          children: <Widget>[
+                            Container(
+                              height: 125,
+                              width: MediaQuery.of(context).size.width,
+                              child: ListView.builder(
+                                  shrinkWrap: true,
+                                  scrollDirection: Axis.horizontal,
+                                  itemCount: list.length < 5 ? list.length : 5,
+                                  itemBuilder:
+                                      (BuildContext context, int index) {
+                                    return CardSection(
+                                      image: const AssetImage(
+                                          'assets/icons/capsule.png'),
+                                      title: list[index].name,
+                                      value: list[index].info,
+                                      unit: "",
+                                      time: list[index].time,
+                                      isDone: list[index].completed ?? false,
+                                      onPressed: () {
+                                        editCheckItem(list[index],
+                                            !list[index].completed);
+                                      },
+                                    );
+                                  }),
+                            ),
+
+                            // CardSection(
+                            //   image: AssetImage('assets/icons/syringe.png'),
+                            //   title: "Trulicity",
+                            //   value: "1",
+                            //   unit: "shot",
+                            //   time: "8-9AM",
+                            //   isDone: true,
+                            // )
+                          ],
                         )
-                      ],
-                    )),
+                      : GestureDetector(
+                          onTap: () {
+                            Navigator.pushNamed(
+                                context, "/MedicalTodayAddPage");
+                          },
+                          child: Text(
+                            "Hiện tại không có lịch trình. \nThêm lịch trình thuốc!",
+                            style: TextStyle(
+                              fontSize: 15,
+                            ),
+                          ),
+                        ),
+                ),
 
                 // Info Medical
                 SizedBox(height: 50),
@@ -269,9 +338,9 @@ class _MedicalPageState extends State<MedicalPage> {
                                 physics: const BouncingScrollPhysics(),
                                 shrinkWrap: true,
                                 scrollDirection: Axis.vertical,
-                                itemCount: listMedical.length < 5
+                                itemCount: listMedical.length < 3
                                     ? listMedical.length
-                                    : 5,
+                                    : 3,
                                 itemBuilder: (BuildContext context, int index) {
                                   return GestureDetector(
                                     onTap: () {
@@ -333,45 +402,45 @@ class _MedicalPageState extends State<MedicalPage> {
                 SizedBox(height: 20),
 
                 // Scheduled Activities
-                Text(
-                  "LỊCH TRÌNH",
-                  style: TextStyle(
-                      color: Constants.textPrimary,
-                      fontSize: 13,
-                      fontWeight: FontWeight.bold),
-                ),
+                // Text(
+                //   "LỊCH TRÌNH",
+                //   style: TextStyle(
+                //       color: Constants.textPrimary,
+                //       fontSize: 13,
+                //       fontWeight: FontWeight.bold),
+                // ),
 
-                SizedBox(height: 20),
+                // SizedBox(height: 20),
 
-                Container(
-                  child: ListView(
-                    scrollDirection: Axis.vertical,
-                    physics: NeverScrollableScrollPhysics(),
-                    shrinkWrap: true,
-                    children: <Widget>[
-                      CardItems(
-                        image: Image.asset(
-                          'assets/icons/Walking.png',
-                        ),
-                        title: "Walking",
-                        value: "750",
-                        unit: "steps",
-                        color: Constants.lightYellow,
-                        progress: 30,
-                      ),
-                      CardItems(
-                        image: Image.asset(
-                          'assets/icons/Swimming.png',
-                        ),
-                        title: "Swimming",
-                        value: "30",
-                        unit: "mins",
-                        color: Constants.lightBlue,
-                        progress: 0,
-                      ),
-                    ],
-                  ),
-                ),
+                // Container(
+                //   child: ListView(
+                //     scrollDirection: Axis.vertical,
+                //     physics: NeverScrollableScrollPhysics(),
+                //     shrinkWrap: true,
+                //     children: <Widget>[
+                //       CardItems(
+                //         image: Image.asset(
+                //           'assets/icons/Walking.png',
+                //         ),
+                //         title: "Walking",
+                //         value: "750",
+                //         unit: "steps",
+                //         color: Constants.lightYellow,
+                //         progress: 30,
+                //       ),
+                //       CardItems(
+                //         image: Image.asset(
+                //           'assets/icons/Swimming.png',
+                //         ),
+                //         title: "Swimming",
+                //         value: "30",
+                //         unit: "mins",
+                //         color: Constants.lightBlue,
+                //         progress: 0,
+                //       ),
+                //     ],
+                //   ),
+                // ),
               ],
             ),
           )

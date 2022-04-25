@@ -4,13 +4,14 @@ import 'package:flutter/material.dart';
 import '../theme/const.dart';
 import 'custom_clipper.dart';
 
-class CardSection extends StatelessWidget {
+class CardSection extends StatefulWidget {
   final String title;
   final String value;
   final String unit;
   final String time;
   final ImageProvider image;
   final bool isDone;
+  final Function onPressed;
 
   CardSection(
       {Key key,
@@ -19,9 +20,15 @@ class CardSection extends StatelessWidget {
       @required this.unit,
       @required this.time,
       @required this.image,
+      @required this.onPressed,
       this.isDone})
       : super(key: key);
 
+  @override
+  State<CardSection> createState() => _CardSectionState();
+}
+
+class _CardSectionState extends State<CardSection> {
   @override
   Widget build(BuildContext context) {
     return Align(
@@ -29,6 +36,7 @@ class CardSection extends StatelessWidget {
       child: Container(
         margin: const EdgeInsets.only(right: 15.0),
         width: 240,
+        height: 150,
         decoration: new BoxDecoration(
           borderRadius: BorderRadius.all(Radius.circular(10.0)),
           shape: BoxShape.rectangle,
@@ -51,7 +59,7 @@ class CardSection extends StatelessWidget {
               ),
             ),
             Padding(
-              padding: EdgeInsets.all(20.0),
+              padding: EdgeInsets.all(10.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
@@ -59,13 +67,13 @@ class CardSection extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
                       Image(
-                        image: image,
+                        image: widget.image,
                         width: 24,
                         height: 24,
                         color: Theme.of(context).accentColor,
                       ),
                       Text(
-                        time,
+                        widget.time,
                         style: TextStyle(
                             fontSize: 15, color: Constants.textPrimary),
                       ),
@@ -80,7 +88,7 @@ class CardSection extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
                             Text(
-                              title,
+                              widget.title,
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
                                   fontSize: 20,
@@ -89,7 +97,7 @@ class CardSection extends StatelessWidget {
                             ),
                             SizedBox(height: 5),
                             Text(
-                              '$value $unit',
+                              '${widget.value} ${widget.unit}',
                               style: TextStyle(
                                   fontSize: 15, color: Constants.textPrimary),
                             ),
@@ -103,7 +111,7 @@ class CardSection extends StatelessWidget {
                             borderRadius:
                                 BorderRadius.all(Radius.circular(10.0)),
                             shape: BoxShape.rectangle,
-                            color: isDone
+                            color: widget.isDone
                                 ? Theme.of(context).accentColor
                                 : Color(0xFFF0F4F8),
                           ),
@@ -112,14 +120,14 @@ class CardSection extends StatelessWidget {
                           child: Center(
                             child: Icon(
                               Icons.check,
-                              color: isDone
+                              color: widget.isDone
                                   ? Colors.white
                                   : Theme.of(context).accentColor,
                             ),
                           ),
                         ),
                         onTap: () {
-                          debugPrint("Button clicked. Handle button setState");
+                          widget.onPressed();
                         },
                       )
                     ],

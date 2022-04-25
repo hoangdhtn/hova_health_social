@@ -1,8 +1,10 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:health_app/src/pages/medical_detail_page.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 import '../config/api_url.dart';
 import '../model/medical_model.dart';
@@ -78,212 +80,212 @@ class _MedicalAllPageState extends State<MedicalAllPage> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
           BackButton(color: Theme.of(context).primaryColor),
-          // IconButton(
-          //     icon: Icon(
-          //       model.isfavourite ? Icons.favorite : Icons.favorite_border,
-          //       color: model.isfavourite ? Colors.red : LightColor.grey,
-          //     ),
-          //     onPressed: () {
-          //       setState(() {
-          //         model.isfavourite = !model.isfavourite;
-          //       });
-          //     })
         ],
       ),
     );
   }
+
+  RefreshController _refreshController = RefreshController();
 
   @override
   Widget build(BuildContext context) {
     User user;
     user = Provider.of<UserProvider>(context).user;
 
+    void _onRefresh() async {
+      // monitor network fetch
+      var fetchedMedical =
+          await Provider.of<MedicalProvider>(context, listen: false)
+              .getMedical(0, 5) as List<Medical>;
+      setState(() {
+        listMedical = fetchedMedical;
+        position = 0;
+        pageSize = 5;
+      });
+      // if failed,use refreshFailed()
+      _refreshController.refreshCompleted();
+      _refreshController.loadComplete();
+    }
+
+    void _onLoading() async {
+      var fetchedMedical =
+          await Provider.of<MedicalProvider>(context, listen: false)
+              .getMedical(position + 5, pageSize + 5) as List<Medical>;
+      if (fetchedMedical != null &&
+          fetchedMedical.isNotEmpty &&
+          fetchedMedical.length > 0) {
+        setState(() {
+          listMedical.addAll(fetchedMedical);
+          position += 5;
+          pageSize += 5;
+        });
+        _refreshController.loadComplete();
+      } else {
+        _refreshController.loadNoData();
+      }
+    }
+
     double statusBarHeight = MediaQuery.of(context).padding.top;
     return Scaffold(
-        backgroundColor: Constants.backgroundColor,
-        body: // BODY
-            Stack(children: <Widget>[
-          ClipPath(
-            clipper: MyCustomClipper(clipType: ClipType.bottom),
-            child: Container(
-              color: Theme.of(context).accentColor,
-              height: Constants.headerHeight + statusBarHeight - 30,
-            ),
+      body: Container(
+        height: MediaQuery.of(context).size.height,
+        width: MediaQuery.of(context).size.width,
+        child: SmartRefresher(
+          enablePullDown: true,
+          enablePullUp: true,
+          header: WaterDropHeader(),
+          footer: CustomFooter(
+            builder: (BuildContext context, LoadStatus mode) {
+              Widget body;
+              if (mode == LoadStatus.idle) {
+                body = Text("Kéo để cập nhật");
+              } else if (mode == LoadStatus.loading) {
+                body = CupertinoActivityIndicator();
+              } else if (mode == LoadStatus.failed) {
+                body = Text("Tải thất bại! Vui lòng nhấn lại !");
+              } else if (mode == LoadStatus.canLoading) {
+                body = Text("Đang sẵn sàng tải thêm");
+              } else {
+                body = Text("Không có dữ liệu thêm");
+              }
+              return Container(
+                height: 55.0,
+                child: Center(child: body),
+              );
+            },
           ),
-          Positioned(
-            right: -45,
-            top: -30,
-            child: ClipOval(
-              child: Container(
-                color: Colors.black.withOpacity(0.05),
-                height: 220,
-                width: 220,
-              ),
-            ),
-          ),
-          Padding(
-            padding: EdgeInsets.all(Constants.paddingSide),
-            child: ListView(
-              children: <Widget>[
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: const <Widget>[
-                    BackButton(color: Colors.white),
-                  ],
-                ),
-                // Header - Greetings and Avatar
-                Row(
-                  children: <Widget>[
-                    Expanded(
-                      child: Text(
-                        "Lịch sử bệnh của,\n${user.full_name}",
-                        style: const TextStyle(
-                            fontSize: 25,
-                            fontWeight: FontWeight.w900,
-                            color: Colors.white),
+          controller: _refreshController,
+          onRefresh: _onRefresh,
+          onLoading: _onLoading,
+          child: ListView(
+            children: [
+              Stack(
+                children: [
+                  ClipPath(
+                    clipper: MyCustomClipper(clipType: ClipType.bottom),
+                    child: Container(
+                      color: Theme.of(context).accentColor,
+                      height: Constants.headerHeight + statusBarHeight - 30,
+                    ),
+                  ),
+                  Positioned(
+                    right: -45,
+                    top: -30,
+                    child: ClipOval(
+                      child: Container(
+                        color: Colors.black.withOpacity(0.05),
+                        height: 220,
+                        width: 220,
                       ),
                     ),
-                    CircleAvatar(
-                        radius: 26.0,
-                        backgroundImage: user.avatar_url == null
-                            ? const AssetImage(
-                                'assets/icons/profile_picture.png')
-                            : NetworkImage(API_URL.getImage + user.avatar_url))
-                  ],
-                ),
-
-                // Main Cards - Heartbeat and Blood Pressure
-
-                // Info Medical
-                SizedBox(height: 50),
-
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      "",
-                      style: TextStyle(
-                          color: Constants.textPrimary,
-                          fontSize: 13,
-                          fontWeight: FontWeight.bold),
-                    ),
-                    GestureDetector(
-                      onTap: () {},
-                      child: const Text(
-                        "THÊM",
-                        style: TextStyle(
-                          color: Colors.black87,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
+                  ),
+                  Padding(
+                    padding: EdgeInsets.all(Constants.paddingSide),
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: const <Widget>[
+                            BackButton(color: Colors.white),
+                          ],
                         ),
-                      ),
-                    ),
-                  ],
-                ),
-
-                SizedBox(height: 20),
-
-                Container(
-                  child: listMedical == null && listMedical.length < 0
-                      ? Center(
-                          child: CircularProgressIndicator(),
-                        )
-                      : ListView(
-                          scrollDirection: Axis.vertical,
-                          physics: NeverScrollableScrollPhysics(),
-                          shrinkWrap: true,
+                        // Header - Greetings and Avatar
+                        Row(
                           children: <Widget>[
-                            ListView.builder(
-                                physics: const BouncingScrollPhysics(),
-                                shrinkWrap: true,
-                                scrollDirection: Axis.vertical,
-                                itemCount: listMedical.length < 5
-                                    ? listMedical.length
-                                    : 5,
-                                itemBuilder: (BuildContext context, int index) {
-                                  return GestureDetector(
-                                    onTap: () {
-                                      Navigator.pushNamed(
-                                        context,
-                                        "/MedicalDetailPage",
-                                        arguments: listMedical[index],
-                                      );
-                                    },
-                                    child: CardItems(
-                                      image: Image.asset(
-                                        'assets/icons/history_medical.png',
-                                      ),
-                                      title: listMedical[index].name,
-                                      value: "Thời gian bị",
-                                      unit: listMedical[index].created_at !=
-                                                  null &&
-                                              listMedical[index].updated_at !=
-                                                  null
-                                          ? dateBetween(
-                                                      stringToDate(
-                                                          listMedical[index]
-                                                              .created_at),
-                                                      stringToDate(
-                                                          listMedical[index]
-                                                              .updated_at))
-                                                  .toString() +
-                                              " ngày"
-                                          : "",
-                                      color: Constants.lightYellow,
-                                      progress: 100,
-                                    ),
-                                  );
-                                }),
-                            // CardItems(
-                            //   image: Image.asset(
-                            //     'assets/icons/Walking.png',
-                            //   ),
-                            //   title: "Walking",
-                            //   value: "750",
-                            //   unit: "steps",
-                            //   color: Constants.lightYellow,
-                            //   progress: 30,
-                            // ),
-                            // CardItems(
-                            //   image: Image.asset(
-                            //     'assets/icons/Swimming.png',
-                            //   ),
-                            //   title: "Swimming",
-                            //   value: "30",
-                            //   unit: "mins",
-                            //   color: Constants.lightBlue,
-                            //   progress: 0,
-                            // ),
-                            Text(position.toString()),
-                            ElevatedButton(
-                              onPressed: () {
-                                _loadmore();
-                              },
-                              style: ElevatedButton.styleFrom(
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(80.0),
-                                ),
-                                padding: const EdgeInsets.all(0),
-                                primary: Colors.blueAccent,
+                            Expanded(
+                              child: Text(
+                                "Lịch sử bệnh của,\n${user.full_name}",
+                                style: const TextStyle(
+                                    fontSize: 25,
+                                    fontWeight: FontWeight.w900,
+                                    color: Colors.white),
                               ),
-                              child: Container(
-                                padding:
-                                    const EdgeInsets.fromLTRB(50, 5, 50, 5),
-                                child: const Text(
-                                  "Tải thêm ...",
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white),
+                            ),
+                            CircleAvatar(
+                                radius: 26.0,
+                                backgroundImage: user.avatar_url == null
+                                    ? const AssetImage(
+                                        'assets/icons/profile_picture.png')
+                                    : NetworkImage(
+                                        API_URL.getImage + user.avatar_url))
+                          ],
+                        ),
+
+                        // Main Cards - Heartbeat and Blood Pressure
+
+                        // Info Medical
+                        SizedBox(height: 70),
+
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              "",
+                              style: TextStyle(
+                                  color: Constants.textPrimary,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                            GestureDetector(
+                              onTap: () {},
+                              child: const Text(
+                                "THÊM",
+                                style: TextStyle(
+                                  color: Colors.black87,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
                             ),
                           ],
                         ),
-                ),
-              ],
-            ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
+                child: ListView.builder(
+                    physics: const BouncingScrollPhysics(),
+                    shrinkWrap: true,
+                    scrollDirection: Axis.vertical,
+                    itemCount: listMedical.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      return GestureDetector(
+                        onTap: () {
+                          Navigator.pushNamed(
+                            context,
+                            "/MedicalDetailPage",
+                            arguments: listMedical[index],
+                          );
+                        },
+                        child: CardItems(
+                          image: Image.asset(
+                            'assets/icons/history_medical.png',
+                          ),
+                          title: listMedical[index].name,
+                          value: "Thời gian bị",
+                          unit: listMedical[index].created_at != null &&
+                                  listMedical[index].updated_at != null
+                              ? dateBetween(
+                                          stringToDate(
+                                              listMedical[index].created_at),
+                                          stringToDate(
+                                              listMedical[index].updated_at))
+                                      .toString() +
+                                  " ngày"
+                              : "",
+                          color: Constants.lightYellow,
+                          progress: 100,
+                        ),
+                      );
+                    }),
+              ),
+            ],
           ),
-        ]));
+        ),
+      ),
+    );
   }
 }
