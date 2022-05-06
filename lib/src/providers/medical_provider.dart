@@ -7,7 +7,22 @@ import 'package:health_app/src/model/medical_model.dart';
 import '../config/api_url.dart';
 import '../config/user_preferences.dart';
 
+enum Status {
+  NotUpdated,
+  Updating,
+  Updated,
+  NotDelete,
+  Deleting,
+  Deleted,
+}
+
 class MedicalProvider extends ChangeNotifier {
+  Status _updateInStatus = Status.NotUpdated;
+  Status get updateInStatus => _updateInStatus;
+
+  Status _deleteInStatus = Status.NotDelete;
+  Status get deleteInStatus => _deleteInStatus;
+
   getMedical(int pos, int pagesize) async {
     Future<String> token = UserPreferences().getToken();
     String tokenA = await token;
@@ -76,6 +91,106 @@ class MedicalProvider extends ChangeNotifier {
     } on DioError catch (e) {
       print(e.message);
       result = null;
+    }
+
+    return result;
+  }
+
+  updateMedical(String id, String name, String info, String created,
+      String updated) async {
+    Future<String> token = UserPreferences().getToken();
+    String tokenA = await token;
+
+    Medical result;
+
+    final Map<String, dynamic> medicalData = {
+      'id': id,
+      'name': name,
+      'info': info,
+      'created_at': created,
+      'updated_at': updated
+    };
+
+    _updateInStatus = Status.Updating;
+    notifyListeners();
+
+    try {
+      var response = Response();
+      response = await Dio().put(
+        API_URL.medical,
+        data: medicalData,
+        options: Options(
+          headers: {
+            HttpHeaders.contentTypeHeader: "application/json",
+            HttpHeaders.authorizationHeader: "${tokenA}",
+          },
+          followRedirects: false,
+          validateStatus: (status) {
+            return status <= 500;
+          },
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        result = Medical.fromJson(response.data);
+
+        _updateInStatus = Status.Updated;
+        notifyListeners();
+      } else {
+        result = null;
+        _updateInStatus = Status.NotUpdated;
+        notifyListeners();
+      }
+    } on DioError catch (e) {
+      result = null;
+      _updateInStatus = Status.NotUpdated;
+      notifyListeners();
+      print(e.message);
+    }
+
+    return result;
+  }
+
+  deleteMedical(String id) async {
+    Future<String> token = UserPreferences().getToken();
+    String tokenA = await token;
+
+    bool result = true;
+
+    _deleteInStatus = Status.Deleting;
+    notifyListeners();
+
+    try {
+      var response = Response();
+      response = await Dio().delete(
+        API_URL.medical + "/${id}",
+        options: Options(
+          headers: {
+            HttpHeaders.contentTypeHeader: "application/json",
+            HttpHeaders.authorizationHeader: "${tokenA}",
+          },
+          followRedirects: false,
+          validateStatus: (status) {
+            return status <= 500;
+          },
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        debugPrint("Â" + response.statusCode.toString());
+        _deleteInStatus = Status.Deleted;
+        notifyListeners();
+        result = true;
+      } else {
+        _deleteInStatus = Status.NotDelete;
+        notifyListeners();
+        result = false;
+      }
+    } on DioError catch (e) {
+      _deleteInStatus = Status.NotDelete;
+      notifyListeners();
+      result = false;
+      print(e.message);
     }
 
     return result;

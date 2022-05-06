@@ -85,4 +85,11 @@ class UserPreferences {
     print("token " + token.toString());
     return token;
   }
+
+  Future<String> getId() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    int id = prefs.getInt("id");
+    print("token " + id.toString());
+    return id.toString();
+  }
 }

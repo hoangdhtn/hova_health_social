@@ -44,6 +44,8 @@ class Medical {
     data["name"] = this.name;
     data["info"] = this.info;
     data["enabled"] = this.enabled;
+    data["created_at"] = this.created_at;
+    data["updated_at"] = this.updated_at;
     data["listImg"] = this.listImg;
   }
 }
