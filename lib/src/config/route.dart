@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:health_app/src/pages/login_page.dart';
+import 'package:health_app/src/pages/medical_add_page.dart';
 import 'package:health_app/src/pages/medical_page.dart';
 import 'package:health_app/src/pages/personal_page.dart';
 import 'package:health_app/src/pages/register_page.dart';
+import 'package:health_app/src/pages/social_add_post_page.dart';
 import 'package:health_app/src/pages/social_page.dart';
 
 import '../pages/category_detail_page.dart';
@@ -34,6 +36,8 @@ class Routes {
       '/MedicalDetailPage': (_) => MedicalDetailPage(),
       '/MedicalTodayPage': (_) => MedicalTodayPage(),
       '/MedicalTodayAddPage': (_) => MedicalTodayAddPage(),
+      '/MedicalAddPage': (_) => MedicalAddPage(),
+      '/SocialAddPostPage': (_) => SocialAddPostPage(),
     };
   }
 

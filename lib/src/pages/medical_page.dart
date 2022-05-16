@@ -325,7 +325,7 @@ class _MedicalPageState extends State<MedicalPage> {
                 SizedBox(height: 20),
 
                 Container(
-                  child: listMedical == null && listMedical.length < 0
+                  child: listMedical == null
                       ? Center(
                           child: CircularProgressIndicator(),
                         )

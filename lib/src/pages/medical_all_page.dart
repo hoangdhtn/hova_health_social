@@ -227,7 +227,9 @@ class _MedicalAllPageState extends State<MedicalAllPage> {
                                   fontWeight: FontWeight.bold),
                             ),
                             GestureDetector(
-                              onTap: () {},
+                              onTap: () {
+                                Navigator.pushNamed(context, '/MedicalAddPage');
+                              },
                               child: const Text(
                                 "THÊM",
                                 style: TextStyle(
@@ -246,41 +248,44 @@ class _MedicalAllPageState extends State<MedicalAllPage> {
               ),
               Padding(
                 padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
-                child: ListView.builder(
-                    physics: const BouncingScrollPhysics(),
-                    shrinkWrap: true,
-                    scrollDirection: Axis.vertical,
-                    itemCount: listMedical.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      return GestureDetector(
-                        onTap: () {
-                          Navigator.pushNamed(
-                            context,
-                            "/MedicalDetailPage",
-                            arguments: listMedical[index],
+                child: listMedical == null
+                    ? Center(child: Text('Không có dữ liệu'))
+                    : ListView.builder(
+                        physics: const BouncingScrollPhysics(),
+                        shrinkWrap: true,
+                        scrollDirection: Axis.vertical,
+                        itemCount:
+                            listMedical.length != null ? listMedical.length : 0,
+                        itemBuilder: (BuildContext context, int index) {
+                          return GestureDetector(
+                            onTap: () {
+                              Navigator.pushNamed(
+                                context,
+                                "/MedicalDetailPage",
+                                arguments: listMedical[index],
+                              );
+                            },
+                            child: CardItems(
+                              image: Image.asset(
+                                'assets/icons/history_medical.png',
+                              ),
+                              title: listMedical[index].name,
+                              value: "Thời gian bị",
+                              unit: listMedical[index].created_at != null &&
+                                      listMedical[index].updated_at != null
+                                  ? dateBetween(
+                                              stringToDate(listMedical[index]
+                                                  .created_at),
+                                              stringToDate(listMedical[index]
+                                                  .updated_at))
+                                          .toString() +
+                                      " ngày"
+                                  : "",
+                              color: Constants.lightYellow,
+                              progress: 100,
+                            ),
                           );
-                        },
-                        child: CardItems(
-                          image: Image.asset(
-                            'assets/icons/history_medical.png',
-                          ),
-                          title: listMedical[index].name,
-                          value: "Thời gian bị",
-                          unit: listMedical[index].created_at != null &&
-                                  listMedical[index].updated_at != null
-                              ? dateBetween(
-                                          stringToDate(
-                                              listMedical[index].created_at),
-                                          stringToDate(
-                                              listMedical[index].updated_at))
-                                      .toString() +
-                                  " ngày"
-                              : "",
-                          color: Constants.lightYellow,
-                          progress: 100,
-                        ),
-                      );
-                    }),
+                        }),
               ),
             ],
           ),
