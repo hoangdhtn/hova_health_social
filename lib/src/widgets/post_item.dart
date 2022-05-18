@@ -1,27 +1,37 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_html/flutter_html.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:health_app/src/config/api_url.dart';
+import 'package:health_app/src/model/user_model.dart';
 import 'package:health_app/src/widgets/post_image.dart';
 
 class PostItem extends StatefulWidget {
-  const PostItem({Key key}) : super(key: key);
+  final User user;
+  final String name;
+  final String content;
+  final List<String> imageUrls;
+  final String like;
+  final String cmt;
+
+  PostItem(
+      {@required this.user,
+      @required this.name,
+      @required this.content,
+      @required this.imageUrls,
+      @required this.like,
+      @required this.cmt,
+      Key key})
+      : super(key: key);
 
   @override
   State<PostItem> createState() => _PostItemState();
 }
 
-var urls = <String>[
-  'https://images.unsplash.com/photo-1503023345310-bd7c1de61c7d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80',
-  'https://images.unsplash.com/photo-1503023345310-bd7c1de61c7d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80',
-  'https://images.unsplash.com/photo-1503023345310-bd7c1de61c7d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80',
-  'https://images.unsplash.com/photo-1503023345310-bd7c1de61c7d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80',
-  'https://images.unsplash.com/photo-1503023345310-bd7c1de61c7d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80',
-  'https://images.unsplash.com/photo-1503023345310-bd7c1de61c7d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80',
-];
-
 class _PostItemState extends State<PostItem> {
   @override
   Widget build(BuildContext context) {
     return Container(
+      margin: const EdgeInsets.only(bottom: 10),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
         color: Colors.white,
@@ -55,7 +65,9 @@ class _PostItemState extends State<PostItem> {
                                 borderRadius: BorderRadius.circular(140)),
                             child: CircleAvatar(
                               backgroundImage: NetworkImage(
-                                'https://storage.googleapis.com/multibhashi-website/website-media/2017/12/person.jpg',
+                                widget.user.avatar_url != null
+                                    ? API_URL.getImage + widget.user.avatar_url
+                                    : 'https://storage.googleapis.com/multibhashi-website/website-media/2017/12/person.jpg',
                               ),
                             )),
                       ],
@@ -69,7 +81,7 @@ class _PostItemState extends State<PostItem> {
                     Padding(
                       padding: const EdgeInsets.only(left: 15.0, top: 13),
                       child: Text(
-                        'Sound Byte',
+                        '${widget.name}',
                         style: GoogleFonts.lato(
                             color: Colors.grey[700],
                             fontSize: 16,
@@ -80,7 +92,7 @@ class _PostItemState extends State<PostItem> {
                     Padding(
                       padding: const EdgeInsets.only(left: 5.0, top: 13),
                       child: Text(
-                        'is now connected',
+                        ' - đã cập nhật trang thái',
                         style: GoogleFonts.lato(
                             color: Colors.grey[700],
                             fontSize: 16,
@@ -100,10 +112,14 @@ class _PostItemState extends State<PostItem> {
               ),
             ],
           ),
+          SizedBox(
+            height: 10,
+          ),
+          Html(data: widget.content),
           Container(
-            height: 278,
+            height: 400,
             child: PhotoGrid(
-              imageUrls: urls,
+              imageUrls: widget.imageUrls,
               onImageClicked: (i) => print('Image $i was clicked!'),
               onExpandClicked: () => print('Expand Image was clicked'),
               maxImages: 4,
@@ -125,7 +141,7 @@ class _PostItemState extends State<PostItem> {
                       ),
                     ),
                     Text(
-                      '45',
+                      '${widget.like}',
                       style: GoogleFonts.averageSans(
                           color: Colors.grey[700],
                           fontSize: 22,
@@ -148,7 +164,7 @@ class _PostItemState extends State<PostItem> {
                       ),
                     ),
                     Text(
-                      '45',
+                      '${widget.cmt}',
                       style: GoogleFonts.averageSans(
                           color: Colors.grey[700],
                           fontSize: 22,

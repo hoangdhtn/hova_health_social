@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:health_app/src/config/api_url.dart';
 
 class PostAdd extends StatefulWidget {
-  const PostAdd({Key key}) : super(key: key);
+  final String ava;
+  const PostAdd({@required this.ava, Key key}) : super(key: key);
 
   @override
   State<PostAdd> createState() => _PostAddState();
@@ -45,7 +47,9 @@ class _PostAddState extends State<PostAdd> {
                             borderRadius: BorderRadius.circular(140)),
                         child: CircleAvatar(
                           backgroundImage: NetworkImage(
-                            'https://storage.googleapis.com/multibhashi-website/website-media/2017/12/person.jpg',
+                            widget.ava != null
+                                ? API_URL.getImage + widget.ava
+                                : 'https://storage.googleapis.com/multibhashi-website/website-media/2017/12/person.jpg',
                           ),
                         )),
                   ],

@@ -68,7 +68,7 @@ class _PhotoGridState extends State<PhotoGrid> {
                     color: Colors.black54,
                     child: Text(
                       '+' + remaining.toString(),
-                      style: TextStyle(fontSize: 32),
+                      style: TextStyle(fontSize: 32, color: Colors.white),
                     ),
                   ),
                 ),

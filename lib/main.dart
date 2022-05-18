@@ -9,6 +9,7 @@ import 'package:provider/provider.dart';
 
 import 'src/config/route.dart';
 import 'src/providers/auth.dart';
+import 'src/providers/post_provider.dart';
 
 void main() => runApp(MyApp());
 
@@ -24,7 +25,8 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => UserProvider()),
         ChangeNotifierProvider(create: (_) => NewsProvider()),
         ChangeNotifierProvider(create: (_) => CategoryProvider()),
-        ChangeNotifierProvider(create: (_) => MedicalProvider())
+        ChangeNotifierProvider(create: (_) => MedicalProvider()),
+        ChangeNotifierProvider(create: (_) => PostProvider()),
       ],
       child: MaterialApp(
         title: 'Health Care',
