@@ -263,7 +263,11 @@ class _MedicalAllPageState extends State<MedicalAllPage> {
                                 context,
                                 "/MedicalDetailPage",
                                 arguments: listMedical[index],
-                              );
+                              ).then((value) {
+                                if (value) {
+                                  _onRefresh();
+                                }
+                              });
                             },
                             child: CardItems(
                               image: Image.asset(

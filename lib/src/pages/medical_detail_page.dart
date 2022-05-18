@@ -122,7 +122,7 @@ class _MedicalDetailPageState extends State<MedicalDetailPage> {
     void _doDelete(String id) async {
       bool result = await medicalProvider.deleteMedical(id);
       if (result == true) {
-        Navigator.pop(context);
+        Navigator.pop(context, true);
       } else {
         Flushbar(
           title: "Thông báo",

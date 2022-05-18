@@ -1,7 +1,7 @@
 class API_URL {
   // static const String liveBaseURL =
   //     "https://shiny-awful-wildebeast.gigalixirapp.com/api/v1";
-  static const String localBaseURL = "http://192.168.88.40:8080/api";
+  static const String localBaseURL = "http://192.168.220.178:8080/api";
 
   static const String baseURL = localBaseURL;
   static const String login = baseURL + "/login";
