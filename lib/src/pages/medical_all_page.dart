@@ -185,8 +185,17 @@ class _MedicalAllPageState extends State<MedicalAllPage> {
                       children: [
                         Row(
                           mainAxisAlignment: MainAxisAlignment.start,
-                          children: const <Widget>[
-                            BackButton(color: Colors.white),
+                          children: <Widget>[
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.pop(context, true);
+                              },
+                              child: const Icon(
+                                Icons.arrow_back_outlined,
+                                color: Colors.white,
+                                size: 36.0,
+                              ),
+                            )
                           ],
                         ),
                         // Header - Greetings and Avatar
@@ -228,7 +237,12 @@ class _MedicalAllPageState extends State<MedicalAllPage> {
                             ),
                             GestureDetector(
                               onTap: () {
-                                Navigator.pushNamed(context, '/MedicalAddPage');
+                                Navigator.pushNamed(context, '/MedicalAddPage')
+                                    .then((value) {
+                                  if (value) {
+                                    _onRefresh();
+                                  }
+                                });
                               },
                               child: const Text(
                                 "THÊM",

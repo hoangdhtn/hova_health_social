@@ -134,6 +134,17 @@ class _MedicalPageState extends State<MedicalPage> {
 
     double statusBarHeight = MediaQuery.of(context).padding.top;
 
+    void _onRefresh() async {
+      // monitor network fetch
+      var fetchedMedical =
+          await Provider.of<MedicalProvider>(context, listen: false)
+              .getMedical(0, 5) as List<Medical>;
+      setState(() {
+        listMedical = fetchedMedical;
+      });
+      print("Medical_page: " + listMedical.toString());
+    }
+
     return Scaffold(
       backgroundColor: Constants.backgroundColor,
       body: Stack(
@@ -309,7 +320,12 @@ class _MedicalPageState extends State<MedicalPage> {
                     ),
                     GestureDetector(
                       onTap: () {
-                        Navigator.pushNamed(context, "/MedicalAllPage");
+                        Navigator.pushNamed(context, "/MedicalAllPage")
+                            .then((value) {
+                          if (value) {
+                            _onRefresh();
+                          }
+                        });
                       },
                       child: Text(
                         "TẤT CẢ",
@@ -348,7 +364,11 @@ class _MedicalPageState extends State<MedicalPage> {
                                         context,
                                         "/MedicalDetailPage",
                                         arguments: listMedical[index],
-                                      );
+                                      ).then((value) {
+                                        if (value) {
+                                          _onRefresh();
+                                        }
+                                      });
                                     },
                                     child: CardItems(
                                       image: Image.asset(

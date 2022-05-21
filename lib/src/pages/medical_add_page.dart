@@ -131,6 +131,10 @@ class _MedicalAddPageState extends State<MedicalAddPage> {
       ),
     );
 
+    void back() {
+      Navigator.pop(context, true);
+    }
+
     return Scaffold(
       body: Container(
         height: MediaQuery.of(context).size.height,
@@ -164,10 +168,17 @@ class _MedicalAddPageState extends State<MedicalAddPage> {
                   children: [
                     Row(
                       mainAxisAlignment: MainAxisAlignment.start,
-                      children: const [
-                        BackButton(
-                          color: Colors.white,
-                        ),
+                      children: [
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.pop(context, true);
+                          },
+                          child: const Icon(
+                            Icons.arrow_back_outlined,
+                            color: Colors.white,
+                            size: 36.0,
+                          ),
+                        )
                       ],
                     ),
                     const Center(

@@ -5,6 +5,8 @@ import 'package:health_app/src/pages/medical_page.dart';
 import 'package:health_app/src/pages/personal_page.dart';
 import 'package:health_app/src/pages/social_page.dart';
 
+import '../pages/booking_page.dart';
+
 class BottomNavigation extends StatefulWidget {
   const BottomNavigation({Key key}) : super(key: key);
 
@@ -14,7 +16,13 @@ class BottomNavigation extends StatefulWidget {
 
 class _BottomNavigationState extends State<BottomNavigation> {
   int selectedpage = 0;
-  final _pageOption = [HomePage(), MedicalPage(), SocialPage(), PersonalPage()];
+  final _pageOption = [
+    HomePage(),
+    MedicalPage(),
+    SocialPage(),
+    BookingPage(),
+    PersonalPage()
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -52,15 +60,19 @@ class _BottomNavigationState extends State<BottomNavigation> {
                     text: 'Trang chủ',
                   ),
                   GButton(
-                    icon: Icons.home,
+                    icon: Icons.monitor_heart,
                     text: 'Bệnh án',
                   ),
                   GButton(
-                    icon: Icons.home,
+                    icon: Icons.volunteer_activism,
                     text: 'Cộng đồng',
                   ),
                   GButton(
-                    icon: Icons.home,
+                    icon: Icons.support_agent,
+                    text: 'Tư vấn',
+                  ),
+                  GButton(
+                    icon: Icons.manage_accounts,
                     text: 'Trang cá nhân',
                   ),
                 ],

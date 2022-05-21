@@ -7,6 +7,7 @@ import 'package:health_app/src/pages/register_page.dart';
 import 'package:health_app/src/pages/social_add_post_page.dart';
 import 'package:health_app/src/pages/social_page.dart';
 
+import '../pages/booking_page.dart';
 import '../pages/category_detail_page.dart';
 import '../pages/detail_page.dart';
 import '../pages/forget_pass_page.dart';
@@ -15,6 +16,7 @@ import '../pages/medical_all_page.dart';
 import '../pages/medical_detail_page.dart';
 import '../pages/medical_today_add_page.dart';
 import '../pages/medical_today_page.dart';
+import '../pages/social_post_detail.dart';
 import '../pages/splash_page.dart';
 import '../widgets/coustom_route.dart';
 import '../widgets/navigation.dart';
@@ -38,6 +40,8 @@ class Routes {
       '/MedicalTodayAddPage': (_) => MedicalTodayAddPage(),
       '/MedicalAddPage': (_) => MedicalAddPage(),
       '/SocialAddPostPage': (_) => SocialAddPostPage(),
+      '/SocialPostDetail': (_) => SocialPostDetail(),
+      '/BookingPage': (_) => BookingPage(),
     };
   }
 
