@@ -6,6 +6,7 @@ import 'package:health_app/src/pages/personal_page.dart';
 import 'package:health_app/src/pages/social_page.dart';
 
 import '../pages/booking_page.dart';
+import '../pages/department_page.dart';
 
 class BottomNavigation extends StatefulWidget {
   const BottomNavigation({Key key}) : super(key: key);
@@ -20,7 +21,7 @@ class _BottomNavigationState extends State<BottomNavigation> {
     HomePage(),
     MedicalPage(),
     SocialPage(),
-    BookingPage(),
+    DepartmentPage(),
     PersonalPage()
   ];
 

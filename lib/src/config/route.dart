@@ -12,6 +12,7 @@ import '../pages/category_detail_page.dart';
 import '../pages/detail_page.dart';
 import '../pages/forget_pass_page.dart';
 import '../pages/home_page.dart';
+import '../pages/listdoctor_page.dart';
 import '../pages/medical_all_page.dart';
 import '../pages/medical_detail_page.dart';
 import '../pages/medical_today_add_page.dart';
@@ -42,6 +43,7 @@ class Routes {
       '/SocialAddPostPage': (_) => SocialAddPostPage(),
       '/SocialPostDetail': (_) => SocialPostDetail(),
       '/BookingPage': (_) => BookingPage(),
+      '/ListDoctorPage': (_) => ListDoctorPage(),
     };
   }
 
