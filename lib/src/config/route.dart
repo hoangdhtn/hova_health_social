@@ -10,6 +10,7 @@ import 'package:health_app/src/pages/social_page.dart';
 import '../pages/booking_page.dart';
 import '../pages/category_detail_page.dart';
 import '../pages/detail_page.dart';
+import '../pages/doctor_detail_page.dart';
 import '../pages/forget_pass_page.dart';
 import '../pages/home_page.dart';
 import '../pages/listdoctor_page.dart';
@@ -44,6 +45,7 @@ class Routes {
       '/SocialPostDetail': (_) => SocialPostDetail(),
       '/BookingPage': (_) => BookingPage(),
       '/ListDoctorPage': (_) => ListDoctorPage(),
+      '/DoctorDetailPage': (_) => DoctorDetailPage(),
     };
   }
 
