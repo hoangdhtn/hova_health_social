@@ -39,13 +39,31 @@ class _BookingPageState extends State<BookingPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Text(
-                      'Lựa chọn thời gian',
-                      style: Theme.of(context)
-                          .textTheme
-                          .headline6
-                          .copyWith(color: Colors.black),
+                    padding: const EdgeInsets.all(8),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.pop(context, true);
+                          },
+                          child: Icon(
+                            Icons.arrow_back,
+                            color: Colors.black54,
+                            size: 36.0,
+                          ),
+                        ),
+                        SizedBox(
+                          width: 80,
+                        ),
+                        Text(
+                          'Lựa chọn thời gian',
+                          style: Theme.of(context)
+                              .textTheme
+                              .headline6
+                              .copyWith(color: Colors.black),
+                        ),
+                      ],
                     ),
                   ),
                   Padding(
@@ -109,7 +127,7 @@ class _BookingPageState extends State<BookingPage> {
                   SizedBox(height: 20),
                   Container(
                     width: MediaQuery.of(context).size.width,
-                    height: MediaQuery.of(context).size.height / 2.4,
+                    height: MediaQuery.of(context).size.height / 2.5,
                     child: GridView.count(
                       // Create a grid with 2 columns. If you change the scrollDirection to
                       // horizontal, this produces 2 rows.
@@ -151,30 +169,44 @@ class _BookingPageState extends State<BookingPage> {
                       }),
                     ),
                   ),
-                  Container(
-                    alignment: Alignment.center,
-                    child: Column(
-                      children: [
-                        ElevatedButton(
-                          style: ButtonStyle(
-                            backgroundColor: MaterialStateProperty.all<Color>(
-                              Color(LightColor.primary),
-                            ),
-                            shape: MaterialStateProperty.all<
-                                RoundedRectangleBorder>(
-                              RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(18.0),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Container(
+                      alignment: Alignment.center,
+                      child: Column(
+                        children: [
+                          ElevatedButton(
+                            style: ButtonStyle(
+                              backgroundColor: MaterialStateProperty.all<Color>(
+                                Color(LightColor.primary),
+                              ),
+                              shape: MaterialStateProperty.all<
+                                  RoundedRectangleBorder>(
+                                RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(5.0),
+                                ),
                               ),
                             ),
+                            child: Container(
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: const [
+                                  Text(
+                                    'Tiếp theo',
+                                    style: TextStyle(
+                                        color: Colors.white, fontSize: 15),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            onPressed: () {
+                              Navigator.pushNamed(
+                                  context, "/BookingDetailPage");
+                            },
                           ),
-                          child: Padding(
-                            padding: const EdgeInsets.only(
-                                left: 60, right: 60, top: 10, bottom: 10),
-                            child: Text('Tiếp theo'),
-                          ),
-                          onPressed: () {},
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   )
                 ],

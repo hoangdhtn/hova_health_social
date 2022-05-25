@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:health_app/src/pages/booking_detail_page.dart';
 import 'package:health_app/src/pages/login_page.dart';
 import 'package:health_app/src/pages/medical_add_page.dart';
 import 'package:health_app/src/pages/medical_page.dart';
@@ -13,6 +14,7 @@ import '../pages/detail_page.dart';
 import '../pages/doctor_detail_page.dart';
 import '../pages/forget_pass_page.dart';
 import '../pages/home_page.dart';
+import '../pages/list_booking_page.dart';
 import '../pages/listdoctor_page.dart';
 import '../pages/medical_all_page.dart';
 import '../pages/medical_detail_page.dart';
@@ -46,6 +48,8 @@ class Routes {
       '/BookingPage': (_) => BookingPage(),
       '/ListDoctorPage': (_) => ListDoctorPage(),
       '/DoctorDetailPage': (_) => DoctorDetailPage(),
+      '/BookingDetailPage': (_) => BookingDetailPage(),
+      '/ListBookingPage': (_) => ListBookingPage(),
     };
   }
 

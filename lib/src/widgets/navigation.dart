@@ -9,7 +9,9 @@ import '../pages/booking_page.dart';
 import '../pages/department_page.dart';
 
 class BottomNavigation extends StatefulWidget {
-  const BottomNavigation({Key key}) : super(key: key);
+  int slpage;
+  bool isAvtive = false;
+  BottomNavigation({Key key, this.slpage, this.isAvtive}) : super(key: key);
 
   @override
   State<BottomNavigation> createState() => _BottomNavigationState();

@@ -19,6 +19,7 @@ class _DepartmentPageState extends State<DepartmentPage> {
         floatingActionButton: FloatingActionButton.extended(
           onPressed: () {
             // Add your onPressed code here!
+            Navigator.pushNamed(context, "/ListBookingPage");
           },
           label: const Text('Danh sách lịch hẹn của bạn'),
           backgroundColor: Colors.green,

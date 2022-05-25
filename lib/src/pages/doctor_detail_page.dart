@@ -82,7 +82,22 @@ class DetailBody extends StatelessWidget {
                 Color(LightColor.primary),
               ),
             ),
-            child: Text('ĐẶT LỊCH HẸN'),
+            child: Container(
+              width: double.infinity,
+              padding: EdgeInsets.all(20),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: const [
+                  Flexible(
+                    child: Text(
+                      'Đặt lịch hẹn',
+                      style: TextStyle(color: Colors.white, fontSize: 15),
+                    ),
+                  ),
+                ],
+              ),
+            ),
             onPressed: () {
               print("Đặt lịch hẹn");
               Navigator.pushNamed(context, '/BookingPage');
