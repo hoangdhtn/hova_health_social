@@ -50,6 +50,7 @@ dependencies:
   html_editor_enhanced: ^2.4.0+1
   flutter_svg_provider: ^0.1.11
   calendar_timeline: ^1.0.4
+  cached_network_image: ^3.2.0
 
 dev_dependencies:
   flutter_test:

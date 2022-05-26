@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:health_app/src/config/api_url.dart';
+import 'package:health_app/src/model/doctor_model.dart';
 import 'package:health_app/src/theme/light_color.dart';
+import 'package:intl/intl.dart';
 
 class DoctorDetailPage extends StatefulWidget {
   const DoctorDetailPage({Key key}) : super(key: key);
@@ -11,6 +14,8 @@ class DoctorDetailPage extends StatefulWidget {
 class _DoctorDetailPageState extends State<DoctorDetailPage> {
   @override
   Widget build(BuildContext context) {
+    // Data param
+    Doctor doctorParam = ModalRoute.of(context).settings.arguments;
     return Scaffold(
       body: CustomScrollView(
         slivers: [
@@ -29,7 +34,19 @@ class _DoctorDetailPageState extends State<DoctorDetailPage> {
             ),
           ),
           SliverToBoxAdapter(
-            child: DetailBody(),
+            child: DetailBody(
+              name: doctorParam.name,
+              department: doctorParam.departments.name,
+              img: doctorParam.ava_url,
+              info: doctorParam.description,
+              price: doctorParam.price.toString(),
+              duration: doctorParam.duration.toString(),
+              rating: doctorParam.rating.toString(),
+              onTap: () {
+                Navigator.pushNamed(context, "/BookingPage",
+                    arguments: doctorParam);
+              },
+            ),
           )
         ],
       ),
@@ -38,9 +55,26 @@ class _DoctorDetailPageState extends State<DoctorDetailPage> {
 }
 
 class DetailBody extends StatelessWidget {
-  const DetailBody({
-    Key key,
-  }) : super(key: key);
+  String name;
+  String department;
+  String img;
+  String info;
+  String price;
+  String duration;
+  String rating;
+  final void Function() onTap;
+
+  DetailBody(
+      {Key key,
+      this.name,
+      this.department,
+      this.img,
+      this.info,
+      this.onTap,
+      this.duration,
+      this.price,
+      this.rating})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -50,11 +84,19 @@ class DetailBody extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          DetailDoctorCard(),
+          DetailDoctorCard(
+            name: name,
+            department: department,
+            img: img,
+          ),
           SizedBox(
             height: 15,
           ),
-          DoctorInfo(),
+          DoctorInfo(
+            price: price,
+            duration: duration,
+            rating: rating,
+          ),
           SizedBox(
             height: 30,
           ),
@@ -66,7 +108,7 @@ class DetailBody extends StatelessWidget {
             height: 15,
           ),
           Text(
-            'Dr. Joshua Simorangkir is a specialist in internal medicine who specialzed blah blah.',
+            info,
             style: TextStyle(
               color: Color(LightColor.purple01),
               fontWeight: FontWeight.w500,
@@ -98,10 +140,7 @@ class DetailBody extends StatelessWidget {
                 ],
               ),
             ),
-            onPressed: () {
-              print("Đặt lịch hẹn");
-              Navigator.pushNamed(context, '/BookingPage');
-            },
+            onPressed: onTap,
           )
         ],
       ),
@@ -110,27 +149,31 @@ class DetailBody extends StatelessWidget {
 }
 
 class DoctorInfo extends StatelessWidget {
-  const DoctorInfo({
-    Key key,
-  }) : super(key: key);
+  String price;
+  String duration;
+  String rating;
+  DoctorInfo({Key key, this.price, this.duration, this.rating})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Row(
-      children: const [
+      children: [
         NumberCard(
           label: 'Chi phí',
-          value: '100+',
+          value: NumberFormat.simpleCurrency(locale: 'vi', decimalDigits: 0)
+              .format(int.parse(price))
+              .toString(),
         ),
         SizedBox(width: 15),
         NumberCard(
           label: 'Thời gian',
-          value: '30 phút',
+          value: '${duration} phút',
         ),
         SizedBox(width: 15),
         NumberCard(
           label: 'Đánh giá',
-          value: '4.0',
+          value: '${rating}.0',
         ),
       ],
     );
@@ -153,10 +196,10 @@ class AboutDoctor extends StatelessWidget {
 }
 
 class NumberCard extends StatelessWidget {
-  final String label;
-  final String value;
+  String label;
+  String value;
 
-  const NumberCard({
+  NumberCard({
     Key key,
     this.label,
     this.value,
@@ -203,7 +246,13 @@ class NumberCard extends StatelessWidget {
 }
 
 class DetailDoctorCard extends StatelessWidget {
-  const DetailDoctorCard({
+  String name;
+  String department;
+  String img;
+  DetailDoctorCard({
+    this.name,
+    this.department,
+    this.img,
     Key key,
   }) : super(key: key);
 
@@ -223,16 +272,18 @@ class DetailDoctorCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Dr. Josua Simorangkir',
+                      'BS. ' + name,
                       style: TextStyle(
-                          color: Color(LightColor.header01),
-                          fontWeight: FontWeight.w700),
+                        color: Color(LightColor.header01),
+                        fontWeight: FontWeight.w700,
+                        fontSize: 20,
+                      ),
                     ),
                     SizedBox(
                       height: 10,
                     ),
                     Text(
-                      'Heart Specialist',
+                      department,
                       style: TextStyle(
                         color: Color(LightColor.grey02),
                         fontWeight: FontWeight.w500,
@@ -242,7 +293,9 @@ class DetailDoctorCard extends StatelessWidget {
                 ),
               ),
               Image(
-                image: AssetImage('assets/doctor_1.png'),
+                image: img == null || img == ""
+                    ? AssetImage('assets/doctor_user.png')
+                    : NetworkImage(API_URL.getImage + img),
                 width: 100,
               )
             ],

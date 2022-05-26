@@ -1,7 +1,12 @@
 import 'package:calendar_timeline/calendar_timeline.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:health_app/src/model/slots_vailable.dart';
+import 'package:health_app/src/providers/booking_provider.dart';
+import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
+import '../model/doctor_model.dart';
 import '../theme/light_color.dart';
 
 class BookingPage extends StatefulWidget {
@@ -14,6 +19,7 @@ class BookingPage extends StatefulWidget {
 class _BookingPageState extends State<BookingPage> {
   DateTime _selectedDate;
   int checkedIndex = 0;
+  List<SlotsAvailable> slotsList;
 
   @override
   void initState() {
@@ -25,8 +31,19 @@ class _BookingPageState extends State<BookingPage> {
     _selectedDate = DateTime.now();
   }
 
+  getDoctorsByDepart(int id_doctor, String date) async {
+    var fetchedSlots =
+        await Provider.of<BookingProvider>(context, listen: false)
+            .getListBookingAvai(id_doctor, date);
+    setState(() {
+      slotsList = fetchedSlots;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    // Data param
+    Doctor doctorParam = ModalRoute.of(context).settings.arguments;
     return Scaffold(
       backgroundColor: Color.fromARGB(255, 255, 255, 255),
       body: SafeArea(
@@ -96,7 +113,13 @@ class _BookingPageState extends State<BookingPage> {
                             setState(() {
                               _selectedDate = date;
                             });
+                            final DateFormat formatter =
+                                DateFormat('yyyy-MM-dd');
+                            final String formatted = formatter.format(date);
+                            getDoctorsByDepart(doctorParam.id, formatted);
                             print(date);
+                            print(formatted);
+                            //print(slotsList);
                           },
                           leftMargin: 20,
                           monthColor: Colors.black,
@@ -106,7 +129,7 @@ class _BookingPageState extends State<BookingPage> {
                           activeBackgroundDayColor: Colors.blueAccent,
                           dotsColor: Color(0xFFFFFFFF),
                           selectableDayPredicate: (date) => date.day != 23,
-                          locale: 'en',
+                          locale: 'vi',
                         ),
                       ),
                     ),
@@ -121,7 +144,9 @@ class _BookingPageState extends State<BookingPage> {
                       child: Text('Làm mới',
                           style: TextStyle(
                               color: Color.fromARGB(255, 255, 255, 255))),
-                      onPressed: () => setState(() => _resetSelectedDate()),
+                      onPressed: () => setState(
+                        () => _resetSelectedDate(),
+                      ),
                     ),
                   ),
                   SizedBox(height: 20),

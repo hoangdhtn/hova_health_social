@@ -1,5 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:health_app/src/model/department_model.dart';
+import 'package:health_app/src/model/doctor_model.dart';
+import 'package:health_app/src/providers/doctor_provider.dart';
+import 'package:health_app/src/theme/light_color.dart';
+import 'package:provider/provider.dart';
 
 import '../widgets/doctor_cart.dart';
 
@@ -11,8 +17,37 @@ class ListDoctorPage extends StatefulWidget {
 }
 
 class _ListDoctorPageState extends State<ListDoctorPage> {
+  int id_doctor;
+  List<Doctor> listDoctors;
+
+  @override
+  void initState() {
+    // id = widget.id;
+    if (SchedulerBinding.instance.schedulerPhase ==
+        SchedulerPhase.persistentCallbacks) {
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        getDoctorsByDepart(id_doctor);
+      });
+    }
+    super.initState();
+  }
+
+  getDoctorsByDepart(int id_doctor) async {
+    var fetchedDoctors =
+        await Provider.of<DoctorProvider>(context, listen: false)
+            .getListDoctor(id_doctor);
+    setState(() {
+      listDoctors = fetchedDoctors;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    // Data param
+    Department department = ModalRoute.of(context).settings.arguments;
+    setState(() {
+      id_doctor = department.id;
+    });
     return Scaffold(
       body: ListView(
         children: [
@@ -40,15 +75,24 @@ class _ListDoctorPageState extends State<ListDoctorPage> {
           ),
           Column(
             children: [
-              DoctorCard(
-                img: "assets/doctor_1.png",
-                doctorName: "Huy",
-                doctorTitle: "TTTT",
-                price: "1000000",
-                onTap: () {
-                  Navigator.pushNamed(context, '/DoctorDetailPage');
-                },
-              ),
+              ListView.builder(
+                  physics: const BouncingScrollPhysics(),
+                  shrinkWrap: true,
+                  scrollDirection: Axis.vertical,
+                  itemCount: listDoctors != null ? listDoctors.length : 0,
+                  itemBuilder: (BuildContext context, int index) {
+                    return DoctorCard(
+                      department: listDoctors[index].departments.name,
+                      doctorName: listDoctors[index].name,
+                      doctorTitle: "",
+                      price: listDoctors[index].price.toString(),
+                      img: listDoctors[index].ava_url,
+                      onTap: () {
+                        Navigator.pushNamed(context, "/DoctorDetailPage",
+                            arguments: listDoctors[index]);
+                      },
+                    );
+                  }),
             ],
           ),
         ],

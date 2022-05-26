@@ -43,7 +43,7 @@ class _ListBookingPageState extends State<ListBookingPage> {
                 ),
               ),
               DoctorCard(
-                img: "assets/doctor_1.png",
+                img: "",
                 doctorName: "Huy",
                 doctorTitle: "TTTT",
                 price: "1000000",
