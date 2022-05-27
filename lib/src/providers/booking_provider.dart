@@ -11,11 +11,17 @@ enum Status {
   NotGetBooking,
   GetBooking,
   GetBooked,
+  NotBooking,
+  Booking,
+  Booked,
 }
 
 class BookingProvider extends ChangeNotifier {
   Status _bookingInStatus = Status.NotGetBooking;
   Status get bookingInStatus => _bookingInStatus;
+
+  Status _addbookingInStatus = Status.NotBooking;
+  Status get addbookingInStatus => _addbookingInStatus;
 
   getListBookingAvai(int id_doctor, String date) async {
     Future<String> token = UserPreferences().getToken();
@@ -66,7 +72,61 @@ class BookingProvider extends ChangeNotifier {
       notifyListeners();
       e.message;
     }
-    print("slotsAvaiList list : " + slotsAvaiList.toString());
+    //print("slotsAvaiList list : " + slotsAvaiList.toString());
     return slotsAvaiList;
+  }
+
+  bookingSlot(String date, String begin_at, String end_at, String index_day,
+      String order_info, String doctor_id) async {
+    Future<String> token = UserPreferences().getToken();
+    String tokenA = await token;
+    bool result;
+
+    final Map<String, dynamic> bookingData = {
+      'date': date,
+      'begin_at': begin_at,
+      'end_at': end_at,
+      'index_day': index_day,
+      'order_info': order_info,
+      "doctor": {"id": doctor_id}
+    };
+
+    _addbookingInStatus = Status.GetBooking;
+    notifyListeners();
+
+    try {
+      var response = Response();
+      response = await Dio().post(
+        API_URL.slots,
+        data: bookingData,
+        options: Options(
+          headers: {
+            HttpHeaders.contentTypeHeader: "application/json",
+            HttpHeaders.authorizationHeader: "${tokenA}",
+          },
+          followRedirects: false,
+          validateStatus: (status) {
+            return status <= 500;
+          },
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        result = true;
+        _addbookingInStatus = Status.Booked;
+        notifyListeners();
+      } else {
+        result = false;
+        _addbookingInStatus = Status.NotBooking;
+        notifyListeners();
+      }
+    } on DioError catch (e) {
+      result = false;
+      _addbookingInStatus = Status.NotBooking;
+      notifyListeners();
+      e.message;
+    }
+    //print("slotsAvaiList list : " + slotsAvaiList.toString());
+    return result;
   }
 }

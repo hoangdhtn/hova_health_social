@@ -18,6 +18,10 @@ class BookingPage extends StatefulWidget {
 
 class _BookingPageState extends State<BookingPage> {
   DateTime _selectedDate;
+  String datebooking;
+  String begin_at;
+  String end_at;
+  String index_time;
   int checkedIndex = 0;
   List<SlotsAvailable> slotsList;
 
@@ -38,6 +42,32 @@ class _BookingPageState extends State<BookingPage> {
     setState(() {
       slotsList = fetchedSlots;
     });
+  }
+
+  Future<void> _showMyDialog() async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+            title: const Text('Vui lòng chọn đầy đủ thông tin'),
+            content: SingleChildScrollView(
+              child: ListBody(
+                children: const <Widget>[
+                  Text('Các thông tin bao gồm: ngày và thời gian gặp mặt'),
+                ],
+              ),
+            ),
+            actions: <Widget>[
+              TextButton(
+                child: const Text('Đã hiểu'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ]);
+      },
+    );
   }
 
   @override
@@ -115,11 +145,14 @@ class _BookingPageState extends State<BookingPage> {
                             });
                             final DateFormat formatter =
                                 DateFormat('yyyy-MM-dd');
-                            final String formatted = formatter.format(date);
-                            getDoctorsByDepart(doctorParam.id, formatted);
-                            print(date);
-                            print(formatted);
-                            //print(slotsList);
+                            final String formattedDay = formatter.format(date);
+                            getDoctorsByDepart(doctorParam.id, formattedDay);
+                            setState(() {
+                              datebooking = formattedDay;
+                            });
+                            // print(date);
+                            // print(formattedDay);
+                            print("Datebooking" + datebooking);
                           },
                           leftMargin: 20,
                           monthColor: Colors.black,
@@ -153,46 +186,77 @@ class _BookingPageState extends State<BookingPage> {
                   Container(
                     width: MediaQuery.of(context).size.width,
                     height: MediaQuery.of(context).size.height / 2.5,
-                    child: GridView.count(
-                      // Create a grid with 2 columns. If you change the scrollDirection to
-                      // horizontal, this produces 2 rows.
-                      crossAxisCount: 3,
-                      // Generate 100 widgets that display their index in the List.
-                      children: List.generate(100, (index) {
-                        bool checked = index == checkedIndex;
-                        return Padding(
-                          padding: const EdgeInsets.fromLTRB(20, 20, 10, 10),
-                          child: GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                checkedIndex = index;
-                              });
-                            },
-                            child: Container(
-                              alignment: Alignment.center,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(16),
-                                color: checked
-                                    ? Colors.orangeAccent
-                                    : Colors.greenAccent,
-                              ),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text('$index:00',
-                                      style: GoogleFonts.nunito(
-                                        textStyle: TextStyle(
-                                          color: Colors.black,
+                    child: GridView.builder(
+                        itemCount: slotsList != null ? slotsList.length : 0,
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 3),
+                        itemBuilder: (_, index) {
+                          bool checked = index == checkedIndex;
+                          return Padding(
+                            padding: const EdgeInsets.fromLTRB(20, 20, 10, 10),
+                            child: GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  checkedIndex = index;
+                                  begin_at = slotsList[index].begin_at;
+                                  end_at = slotsList[index].end_at;
+                                  index_time =
+                                      slotsList[index].index.toString();
+                                });
+                                print(begin_at + " -> " + end_at);
+                              },
+                              child: Container(
+                                alignment: Alignment.center,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(16),
+                                  color: checked
+                                      ? Colors.orangeAccent
+                                      : Colors.greenAccent,
+                                ),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          slotsList[index]
+                                              .begin_at
+                                              .substring(0, 5),
+                                          style: GoogleFonts.nunito(
+                                            textStyle: TextStyle(
+                                              color: Colors.black,
+                                            ),
+                                          ),
                                         ),
-                                      )),
-                                ],
+                                        Text(
+                                          ' - ',
+                                          style: GoogleFonts.nunito(
+                                            textStyle: TextStyle(
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                        ),
+                                        Text(
+                                          slotsList[index]
+                                              .end_at
+                                              .substring(0, 5),
+                                          style: GoogleFonts.nunito(
+                                            textStyle: TextStyle(
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    )
+                                  ],
+                                ),
                               ),
                             ),
-                          ),
-                        );
-                      }),
-                    ),
+                          );
+                        }),
                   ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
@@ -226,8 +290,19 @@ class _BookingPageState extends State<BookingPage> {
                               ),
                             ),
                             onPressed: () {
-                              Navigator.pushNamed(
-                                  context, "/BookingDetailPage");
+                              if (datebooking == null || begin_at == null) {
+                                _showMyDialog();
+                              } else {
+                                Navigator.pushNamed(
+                                    context, "/BookingDetailPage",
+                                    arguments: {
+                                      "datebooking": datebooking,
+                                      "begin_at": begin_at,
+                                      "end_at": end_at,
+                                      "index_date": index_time,
+                                      "doctor": doctorParam
+                                    });
+                              }
                             },
                           ),
                         ],
