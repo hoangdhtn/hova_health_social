@@ -5,6 +5,7 @@ import 'package:health_app/src/model/department_model.dart';
 import 'package:health_app/src/model/doctor_model.dart';
 import 'package:health_app/src/providers/doctor_provider.dart';
 import 'package:health_app/src/theme/light_color.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../widgets/doctor_cart.dart';
@@ -85,7 +86,11 @@ class _ListDoctorPageState extends State<ListDoctorPage> {
                       department: listDoctors[index].departments.name,
                       doctorName: listDoctors[index].name,
                       doctorTitle: "",
-                      price: listDoctors[index].price.toString(),
+                      price: NumberFormat.simpleCurrency(
+                              locale: 'vi', decimalDigits: 0)
+                          .format(
+                              int.parse(listDoctors[index].price.toString()))
+                          .toString(),
                       img: listDoctors[index].ava_url,
                       onTap: () {
                         Navigator.pushNamed(context, "/DoctorDetailPage",

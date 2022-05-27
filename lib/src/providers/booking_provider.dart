@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:health_app/src/model/booking_model.dart';
 import 'package:health_app/src/model/slots_vailable.dart';
 
 import '../config/api_url.dart';
@@ -76,6 +77,46 @@ class BookingProvider extends ChangeNotifier {
     return slotsAvaiList;
   }
 
+  getListBookingUser() async {
+    Future<String> token = UserPreferences().getToken();
+    String tokenA = await token;
+    List<Booking> bookingList = [];
+    var result;
+
+    try {
+      var response = Response();
+      response = await Dio().get(
+        API_URL.slots + "/user",
+        options: Options(
+          headers: {
+            HttpHeaders.contentTypeHeader: "application/json",
+            HttpHeaders.authorizationHeader: "${tokenA}",
+          },
+          followRedirects: false,
+          validateStatus: (status) {
+            return status <= 500;
+          },
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        final data = response.data;
+        bookingList.addAll(
+          data.map<Booking>(
+            (json) => Booking.fromJson(json),
+          ),
+        );
+      } else {
+        bookingList = null;
+      }
+    } on DioError catch (e) {
+      bookingList = null;
+      e.message;
+    }
+    //print("slotsAvaiList list : " + slotsAvaiList.toString());
+    return bookingList;
+  }
+
   bookingSlot(String date, String begin_at, String end_at, String index_day,
       String order_info, String doctor_id) async {
     Future<String> token = UserPreferences().getToken();
@@ -124,6 +165,40 @@ class BookingProvider extends ChangeNotifier {
       result = false;
       _addbookingInStatus = Status.NotBooking;
       notifyListeners();
+      e.message;
+    }
+    //print("slotsAvaiList list : " + slotsAvaiList.toString());
+    return result;
+  }
+
+  deleteBookingUser(int id_booking) async {
+    Future<String> token = UserPreferences().getToken();
+    String tokenA = await token;
+    bool result;
+
+    try {
+      var response = Response();
+      response = await Dio().delete(
+        API_URL.slots + "/${id_booking}",
+        options: Options(
+          headers: {
+            HttpHeaders.contentTypeHeader: "application/json",
+            HttpHeaders.authorizationHeader: "${tokenA}",
+          },
+          followRedirects: false,
+          validateStatus: (status) {
+            return status <= 500;
+          },
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        result = true;
+      } else {
+        result = false;
+      }
+    } on DioError catch (e) {
+      result = false;
       e.message;
     }
     //print("slotsAvaiList list : " + slotsAvaiList.toString());
