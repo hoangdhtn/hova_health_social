@@ -38,6 +38,7 @@ class PostProvider extends ChangeNotifier {
   Status _cmtInStatus = Status.NotComment;
   Status get cmtInStatus => _cmtInStatus;
 
+  // lấy post của tất cả user
   getPosts(int pos, int pagesize) async {
     Future<String> token = UserPreferences().getToken();
     String tokenA = await token;
@@ -49,6 +50,58 @@ class PostProvider extends ChangeNotifier {
       var response = Response();
       response = await Dio().get(
         API_URL.post + "/" + pos.toString() + "/" + pagesize.toString(),
+        options: Options(
+          headers: {
+            HttpHeaders.contentTypeHeader: "application/json",
+            HttpHeaders.authorizationHeader: "${tokenA}",
+          },
+          followRedirects: false,
+          validateStatus: (status) {
+            return status <= 500;
+          },
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        final data = response.data;
+        data.forEach((e) {
+          listPost.add(Post.fromJson(e));
+        });
+        result = {
+          'status': true,
+          'message': 'Successful',
+          'listPost': listPost
+        };
+      } else {
+        result = {'status': true, 'message': 'Successful', 'listPost': null};
+      }
+    } on DioError catch (e) {
+      print(e.message);
+    }
+
+    return result;
+  }
+
+  // Lấy post của user
+  getUserPosts(int pos, int pagesize) async {
+    Future<String> token = UserPreferences().getToken();
+    String tokenA = await token;
+    Future<String> id_user = UserPreferences().getId();
+    String id_userA = await id_user;
+
+    List<Post> listPost = [];
+    var result;
+
+    try {
+      var response = Response();
+      response = await Dio().get(
+        API_URL.post +
+            "/user/" +
+            id_userA +
+            "/" +
+            pos.toString() +
+            "/" +
+            pagesize.toString(),
         options: Options(
           headers: {
             HttpHeaders.contentTypeHeader: "application/json",

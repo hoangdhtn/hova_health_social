@@ -65,9 +65,11 @@ class _DepartmentPageState extends State<DepartmentPage> {
           padding: EdgeInsets.symmetric(horizontal: 30),
           child: ListView(
             children: [
-              UserIntro(
-                name: user.full_name,
-              ),
+              // Container(
+              //   child: UserIntro(
+              //     name: user.full_name,
+              //   ),
+              // ),
               SizedBox(
                 height: 20,
               ),
@@ -75,7 +77,7 @@ class _DepartmentPageState extends State<DepartmentPage> {
                   physics: const BouncingScrollPhysics(),
                   shrinkWrap: true,
                   scrollDirection: Axis.vertical,
-                  itemCount: listDepartment.length,
+                  itemCount: listDepartment != null ? listDepartment.length : 0,
                   itemBuilder: (BuildContext context, int index) {
                     return CardSelect(
                       title: listDepartment[index].name,
@@ -88,9 +90,6 @@ class _DepartmentPageState extends State<DepartmentPage> {
                       },
                     );
                   }),
-              SizedBox(
-                height: 60,
-              ),
             ],
           ),
         ),

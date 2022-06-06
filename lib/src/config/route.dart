@@ -10,6 +10,7 @@ import 'package:health_app/src/pages/social_page.dart';
 
 import '../pages/booking_page.dart';
 import '../pages/category_detail_page.dart';
+import '../pages/department_page.dart';
 import '../pages/detail_page.dart';
 import '../pages/doctor_detail_page.dart';
 import '../pages/forget_pass_page.dart';
@@ -20,6 +21,7 @@ import '../pages/medical_all_page.dart';
 import '../pages/medical_detail_page.dart';
 import '../pages/medical_today_add_page.dart';
 import '../pages/medical_today_page.dart';
+import '../pages/personal_setting_page.dart';
 import '../pages/social_post_detail.dart';
 import '../pages/splash_page.dart';
 import '../widgets/coustom_route.dart';
@@ -50,6 +52,8 @@ class Routes {
       '/DoctorDetailPage': (_) => DoctorDetailPage(),
       '/BookingDetailPage': (_) => BookingDetailPage(),
       '/ListBookingPage': (_) => ListBookingPage(),
+      '/PersonalSettingPage': (_) => PersonalSettingPage(),
+      '/DepartmentPage': (_) => DepartmentPage(),
     };
   }
 

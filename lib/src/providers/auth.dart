@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:health_app/src/config/user_preferences.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../config/api_url.dart';
 import '../model/user_model.dart';
@@ -22,7 +23,7 @@ enum Status {
   SentMail,
   NotResetPassword,
   ResetPasswording,
-  ResetPassworded,
+  ResetPassworded
 }
 
 class AuthProvider extends ChangeNotifier {
@@ -248,4 +249,65 @@ class AuthProvider extends ChangeNotifier {
 
     return result;
   }
+
+  // updateUser(String fullname, String height, String weight, XFile fileImg,
+  //     String work, String location, String data_of_birth) async {
+  //   Future<String> token = UserPreferences().getToken();
+  //   String tokenA = await token;
+  //   bool result;
+
+  //   FormData formData = FormData.fromMap({
+  //     "fullname": fullname,
+  //     "height": height,
+  //     "weight": weight,
+  //     "work_at": work,
+  //     "location": location,
+  //     "data_of_birth": data_of_birth,
+  //   });
+  //   if (fileImg != null) {
+  //     formData.files.addAll([
+  //       MapEntry("files",
+  //           await MultipartFile.fromFile(fileImg.path, filename: fileImg.name)),
+  //     ]);
+  //   }
+
+  //   _updatedInStatus = Status.Updating;
+  //   notifyListeners();
+
+  //   try {
+  //     var response = Response();
+  //     response = await Dio().put(
+  //       API_URL.users,
+  //       data: formData,
+  //       options: Options(
+  //         headers: {
+  //           HttpHeaders.contentTypeHeader: "application/json",
+  //         },
+  //         followRedirects: false,
+  //         validateStatus: (status) {
+  //           return status <= 500;
+  //         },
+  //       ),
+  //     );
+
+  //     if (response.statusCode == 200) {
+  //       var userData = response.data;
+  //       User authUser = User.fromJson(userData);
+  //       UserPreferences().saveUser(authUser, tokenA);
+  //       _updatedInStatus = Status.Updated;
+  //       notifyListeners();
+  //       result = true;
+  //     } else {
+  //       _updatedInStatus = Status.NotUpdated;
+  //       notifyListeners();
+  //       result = false;
+  //     }
+  //   } on DioError catch (e) {
+  //     _updatedInStatus = Status.NotUpdated;
+  //     notifyListeners();
+  //     result = false;
+  //   }
+
+  //   return result;
+  // }
 }

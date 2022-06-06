@@ -22,11 +22,13 @@ class UserIntro extends StatelessWidget {
                 textStyle: TextStyle(fontSize: 20),
               ),
             ),
-            Text('${name} 👋',
-                style: GoogleFonts.nunito(
-                  textStyle:
-                      TextStyle(fontSize: 35, fontWeight: FontWeight.bold),
-                )),
+            Flexible(
+              child: Text('${name} 👋',
+                  style: GoogleFonts.nunito(
+                    textStyle:
+                        TextStyle(fontSize: 35, fontWeight: FontWeight.bold),
+                  )),
+            ),
             Text(
               'Mời bạn lựa chọn',
               style: GoogleFonts.lato(

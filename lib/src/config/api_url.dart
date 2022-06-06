@@ -19,4 +19,5 @@ class API_URL {
   static const String departments = baseURL + "/departments";
   static const String doctors = baseURL + "/doctors";
   static const String slots = baseURL + "/slots";
+  static const String users = baseURL + "/users";
 }

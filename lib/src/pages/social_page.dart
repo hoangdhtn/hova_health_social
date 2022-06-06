@@ -144,7 +144,6 @@ class _SocialPageState extends State<SocialPage> {
                       children: [
                         GestureDetector(
                           onTap: (() {
-                            print("cccc");
                             Navigator.pushNamed(context, '/SocialAddPostPage');
                           }),
                           child: PostAdd(
